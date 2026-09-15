@@ -263,3 +263,64 @@ class NLPExtractor:
                     })
 
         return relationships
+
+    def extract_entities_with_provenance(
+        self, text: str, source_metadata: Optional[Dict[str, Any]] = None
+    ) -> List[Dict[str, Any]]:
+        """Extract entities attaching cryptographic hash, offsets, and provenance metadata."""
+        import hashlib
+        from datetime import datetime
+
+        meta = source_metadata or {}
+        text_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
+        base_entities = self.extract_entities(text)
+
+        for ent in base_entities:
+            name = ent["name"]
+            char_idx = text.find(name)
+            char_start = char_idx if char_idx != -1 else 0
+            char_end = char_start + len(name) if char_idx != -1 else len(name)
+
+            ent["provenance"] = {
+                "source_file": meta.get("filename", meta.get("source", "unstructured_text")),
+                "file_hash": meta.get("file_hash", text_hash),
+                "case_id": meta.get("case_id"),
+                "char_start": char_start,
+                "char_end": char_end,
+                "extraction_method": ent.get("properties", {}).get("source", "nlp_hybrid_ner"),
+                "extracted_at": datetime.now().isoformat(),
+                "confidence": 0.95 if ent["label"] in (NodeType.PHONE.value, NodeType.VEHICLE.value) else 0.88,
+            }
+            if "properties" in ent:
+                ent["properties"]["provenance"] = ent["provenance"]
+
+        return base_entities
+
+    def extract_triplets_with_provenance(
+        self, text: str, entities: List[Dict[str, Any]], source_metadata: Optional[Dict[str, Any]] = None
+    ) -> List[Dict[str, Any]]:
+        """Extract triplets attaching sentence span and evidence provenance."""
+        import hashlib
+        from datetime import datetime
+
+        meta = source_metadata or {}
+        text_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
+        triplets = self.extract_triplets(text, entities)
+
+        for trip in triplets:
+            evidence_str = trip.get("properties", {}).get("evidence", "")
+            char_idx = text.find(evidence_str) if evidence_str else 0
+            trip["provenance"] = {
+                "source_file": meta.get("filename", meta.get("source", "unstructured_text")),
+                "file_hash": meta.get("file_hash", text_hash),
+                "case_id": meta.get("case_id"),
+                "evidence_snippet": evidence_str[:120],
+                "char_start": char_idx if char_idx != -1 else 0,
+                "char_end": (char_idx + len(evidence_str)) if char_idx != -1 else len(evidence_str),
+                "extraction_timestamp": datetime.now().isoformat(),
+                "verification_status": "UNVERIFIED_EVIDENCE_PROVENANCE",
+            }
+            if "properties" in trip:
+                trip["properties"]["provenance"] = trip["provenance"]
+
+        return triplets

@@ -20,6 +20,7 @@ from app.api.routes_reports import router as reports_router
 from app.api.routes_auth import router as auth_router
 from app.api.routes_users import router as users_router
 from app.api.routes_audit import router as audit_router
+from app.api.routes_cross_domain import router as cross_domain_router
 from app.core.audit_logger import audit_logger
 from app.models.audit_models import AuditAction
 from app.core.graph_engine import get_graph_engine
@@ -122,6 +123,7 @@ app.include_router(timeline_router, prefix=settings.API_V1_STR)
 app.include_router(risk_router, prefix=settings.API_V1_STR)
 app.include_router(assistant_router, prefix=settings.API_V1_STR)
 app.include_router(reports_router, prefix=settings.API_V1_STR)
+app.include_router(cross_domain_router, prefix=settings.API_V1_STR)
 
 
 # Static Files Setup

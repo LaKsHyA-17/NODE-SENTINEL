@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Dict, Any, Optional
 from app.models.graph_models import NodeType, EdgeType
 
@@ -21,8 +21,7 @@ class VisEdge(BaseModel):
     arrows: str = "to"
     properties: Dict[str, Any] = Field(default_factory=dict)
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class VisGraphResponse(BaseModel):
     nodes: List[VisNode]
