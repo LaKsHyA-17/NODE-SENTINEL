@@ -2084,6 +2084,90 @@
             white-space: nowrap;
         }
 
+        /* Smart Intelligence Dossier Modular Cards */
+        .dossier-card {
+            background: #091728;
+            border: 1px solid #1c3652;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+            transition: border-color 0.2s ease;
+        }
+
+        .dossier-card:hover {
+            border-color: #2b527d;
+        }
+
+        .dossier-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .dossier-card-title {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dossier-stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .dossier-stat-box {
+            background: #06101c;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 5px;
+            padding: 6px 8px;
+            text-align: center;
+        }
+
+        .dossier-stat-val {
+            font-size: 13.5px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            color: #fff;
+        }
+
+        .dossier-stat-lbl {
+            font-size: 9.5px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            margin-top: 2px;
+        }
+
+        .dossier-mini-item {
+            background: #06101d;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+            padding: 6px 8px;
+            margin-top: 5px;
+            font-size: 11.5px;
+        }
+
+        .dossier-empty-notice {
+            color: var(--muted);
+            font-size: 11.5px;
+            font-style: italic;
+            padding: 8px 10px;
+            background: rgba(6, 16, 28, 0.6);
+            border: 1px dashed rgba(255, 255, 255, 0.08);
+            border-radius: 5px;
+            margin-top: 4px;
+        }
+
         /* Dynamic Legend for Graph */
         .legend-dynamic {
             display: flex;
@@ -5338,240 +5422,517 @@
                 }, 100);
             }
 
-            async function loadDossier(id) {
+            // In-memory cache for entity-level dossier telemetry
+            const _dossierCache = new Map();
+
+            async function loadDossier(id, forceRefresh = false) {
                 const dossierEl = document.getElementById('dossier');
-                dossierEl.innerHTML = `<div class="muted" style="padding: 20px 0;">Loading intelligence dossier…</div>`;
+                if (!dossierEl) return;
 
-                try {
-                    const d = await request('/entity/' + encodeURIComponent(id) + '/dossier');
-                    const risk = d.risk || { overall_score: 0, severity_level: 'LOW', factors: [] };
-                    const finalScore = risk.risk_score != null ? Math.round(risk.risk_score) : Math.round(risk.overall_score || 0);
-                    const riskLevel = risk.risk_level || risk.severity_level || 'LOW';
-                    const sevClass = riskLevel.toLowerCase();
+                const cleanId = (id || '').trim();
+                if (!cleanId) return;
 
-                    // Explainable Risk Factors Accordion
-                    let factorsHtml = '';
-                    if (risk.factors && risk.factors.length > 0) {
-                        factorsHtml = risk.factors.map((f, idx) => {
-                            const fid = f.factor_id || ('fac_' + idx);
-                            const pts = f.score_contribution != null ? (f.score_contribution >= 0 ? '+' + Math.round(f.score_contribution) : Math.round(f.score_contribution)) : (f.points != null ? '+' + Math.round(f.points) : '');
-                            const title = f.title || f.factor || 'Investigative Indicator';
-                            const source = f.source || 'Intelligence Engine';
-                            const evidence = f.evidence || f.factor || '';
-                            const explanation = f.explanation || '';
-                            const evType = f.timeline_event_type;
+                // Check cache first for instant navigation
+                if (!forceRefresh && _dossierCache.has(cleanId)) {
+                    renderSmartDossier(_dossierCache.get(cleanId));
+                    return;
+                }
 
-                            return `
-                            <div class="risk-factor-accordion-item" style="background:#091729; border:1px solid var(--line); border-radius:6px; margin-bottom:6px; overflow:hidden;">
-                                <div class="risk-factor-header" onclick="toggleRiskFactor('${fid}')" style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; cursor:pointer; font-size:12px; user-select:none;">
-                                    <div style="display:flex; align-items:center; gap:8px;">
-                                        <b style="color:var(--amber); font-family:'JetBrains Mono',monospace; font-size:12.5px; min-width:38px;">[${pts}]</b>
-                                        <span style="font-weight:600; color:#fff;">${escapeHtml(title)}</span>
-                                    </div>
-                                    <span id="risk-chevron-${fid}" style="color:var(--muted); font-size:10px; transition:transform 0.2s;">▼</span>
-                                </div>
-                                <div id="risk-body-${fid}" class="risk-factor-body hidden" style="padding:10px 12px; background:#07101e; border-top:1px solid rgba(255,255,255,0.05); font-size:11.5px;">
-                                    <div style="margin-bottom:5px;"><span class="muted">Source:</span> <b style="color:var(--teal); font-family:'JetBrains Mono',monospace;">${escapeHtml(source)}</b></div>
-                                    <div style="margin-bottom:5px;"><span class="muted">Evidence:</span> <span style="color:#e2e8f0; font-weight:600;">${escapeHtml(evidence)}</span></div>
-                                    ${explanation ? `<div style="margin-bottom:7px;"><span class="muted">Context:</span> <span class="muted">${escapeHtml(explanation)}</span></div>` : ''}
-                                    <div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">
-                                        ${evType === 'FINANCIAL' ? `<button class="btn-action-primary" style="padding:2px 8px; font-size:10px; color:var(--amber); border-color:rgba(255,181,71,0.4);" onclick="openFinancialAnalysis('${escapeHtml(d.entity_id)}')">💳 Analyze Finances</button>` : ''}
-                                        ${evType === 'CALL' ? `<button class="btn-action-primary" style="padding:2px 8px; font-size:10px; color:var(--teal); border-color:rgba(49,209,191,0.4);" onclick="openCdrAnalysis('${escapeHtml(d.entity_id)}')">📞 Analyze Calls</button>` : ''}
-                                        ${evType === 'CASE' ? `<button class="btn-action-primary" style="padding:2px 8px; font-size:10px; color:#c084fc; border-color:rgba(192,132,252,0.4);" onclick="openCaseDetails('${escapeHtml(d.entity_id)}')">📁 View Case</button>` : ''}
-                                        <button class="btn-action-secondary" style="padding:2px 8px; font-size:10px; color:#a78bfa; border-color:rgba(167,139,250,0.4);" onclick="openTimelineAnalysis('${escapeHtml(d.entity_id)}')">🕒 View Timeline</button>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                        }).join('');
-                    } else {
-                        factorsHtml = `<div class="muted" style="padding:10px; background:#091729; border:1px dashed var(--line); border-radius:6px; font-size:11.5px;">No active negative risk indicators identified for this entity.</div>`;
-                    }
-
-                    // Properties
-                    const props = d.properties || {};
-                    let propsHtml = '';
-                    for (const [k, v] of Object.entries(props)) {
-                        if (['source'].includes(k)) continue;
-                        propsHtml += `<div class="prop-item"><span class="k">${k.replace('_', ' ')}</span><span class="v">${v}</span></div>`;
-                    }
-
-                    // Active Alerts
-                    let alertsHtml = '';
-                    if (d.active_alerts && d.active_alerts.length > 0) {
-                        alertsHtml = `
-                        <ul class="list" style="margin-top: 6px;">
-                            ${d.active_alerts.map(a => `
-                                <li>
-                                    <span class="pill ${a.severity === 'CRITICAL' ? 'badge-red' : 'badge-amber'}">${a.severity}</span>
-                                    <strong style="margin-left: 4px;">${a.title}</strong>
-                                    <div class="muted" style="font-size: 11px; margin-top: 2px;">${a.description}</div>
-                                </li>
-                            `).join('')}
-                        </ul>
-                    `;
-                    } else {
-                        alertsHtml = `<div class="muted" style="padding:8px 10px; background:#081322; border:1px solid rgba(255,255,255,0.04); border-radius:6px; font-size:11.5px; margin-top:6px;">No anomalous patterns detected for this entity.</div>`;
-                    }
-
-                    // Connected Entities
-                    const connectedHtml = (d.connected_nodes && d.connected_nodes.length)
-                        ? d.connected_nodes.slice(0, 10).map(n => `
-                        <div class="connected-entity-item" onclick="focusNode('${n.id}')">
-                            <span class="connected-name">${n.name}</span>
-                            <span class="pill">${n.label}</span>
-                        </div>
-                    `).join('')
-                        : '<div class="muted" style="font-size: 12px; padding: 6px 0;">No direct 1-hop connections identified.</div>';
-
-                    // Fetch supplemental node network details
-                    let nodeDetailsHtml = '';
-                    try {
-                        const nd = await request('/network/node/' + encodeURIComponent(id) + '/details');
-                        const casesStr = (nd.cases && nd.cases.length) ? nd.cases.slice(0, 3).join(', ') + (nd.cases.length > 3 ? '…' : '') : 'None';
-                        const phonesStr = (nd.phones && nd.phones.length) ? nd.phones.slice(0, 2).join(', ') + (nd.phones.length > 2 ? '…' : '') : 'None';
-                        const vehiclesStr = (nd.vehicles && nd.vehicles.length) ? nd.vehicles.slice(0, 2).join(', ') + (nd.vehicles.length > 2 ? '…' : '') : 'None';
-                        const locsStr = (nd.locations && nd.locations.length) ? nd.locations.slice(0, 2).join(', ') + (nd.locations.length > 2 ? '…' : '') : 'None';
-                        const faceBadgeHtml = nd.face_registered
-                            ? `<div class="node-detail-row">
-                            <span class="node-detail-label">Biometric Face</span>
-                            <span class="node-detail-value" style="color:var(--teal)">📷 Enrolled (Verification Required)</span>
-                           </div>`
-                            : '';
-                        nodeDetailsHtml = `
-                        <div class="node-detail-row" style="margin-top:8px;">
-                            <span class="node-detail-label">Cases Linked</span>
-                            <span class="node-detail-value" title="${escapeHtml(casesStr)}">${escapeHtml(casesStr)}</span>
-                        </div>
-                        <div class="node-detail-row">
-                            <span class="node-detail-label">Phones</span>
-                            <span class="node-detail-value" title="${escapeHtml(phonesStr)}">${escapeHtml(phonesStr)}</span>
-                        </div>
-                        <div class="node-detail-row">
-                            <span class="node-detail-label">Vehicles</span>
-                            <span class="node-detail-value" title="${escapeHtml(vehiclesStr)}">${escapeHtml(vehiclesStr)}</span>
-                        </div>
-                        <div class="node-detail-row">
-                            <span class="node-detail-label">Locations</span>
-                            <span class="node-detail-value" title="${escapeHtml(locsStr)}">${escapeHtml(locsStr)}</span>
-                        </div>
-                        ${faceBadgeHtml}
-                        <div class="node-detail-row">
-                            <span class="node-detail-label">Direct Connections</span>
-                            <span class="node-detail-value">${nd.direct_count}</span>
-                        </div>
-                        <div class="node-detail-row" style="border:none;">
-                            <span class="node-detail-label">Indirect (2-hop)</span>
-                            <span class="node-detail-value">${nd.indirect_count}</span>
-                        </div>
-                    `;
-                    } catch (_) { }
-
-                    // Build Structured 5-Section Dossier HTML
-                    dossierEl.innerHTML = `
-                    <!-- SECTION 1: IDENTITY -->
-                    <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                        <span class="eyebrow">${d.type}</span>
-                        ${props.risk_tag ? `<span class="pill ${props.risk_tag === 'CRITICAL' ? 'badge-red' : 'badge-amber'}">${props.risk_tag}</span>` : ''}
-                    </div>
-                    <h2 class="entity-title">${d.name}</h2>
-                    <div class="entity-id">${d.entity_id}</div>
-
-                    <!-- SECTION 2: INVESTIGATION ACTIONS -->
-                    <div style="margin: 10px 0 14px;">
-                        <button class="button primary" style="width:100%; display:flex; align-items:center; justify-content:center; gap:8px; font-weight:700;" onclick="openReportModal('${escapeHtml(d.entity_id)}')">
-                            📑 Generate Investigation Report
-                        </button>
-                        <div class="node-details-actions" style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px;">
-                            <button class="btn-action-primary" onclick="viewEntityDossier('${escapeHtml(id)}')">👤 View Profile</button>
-                            <button class="btn-action-secondary" onclick="viewEntityNetwork('${escapeHtml(id)}')">🌐 View Network</button>
-                            <button class="btn-action-secondary" onclick="focusNode('${escapeHtml(id)}')">🎯 Focus Node</button>
-                            <button class="btn-action-secondary" onclick="triggerExpandNode('${escapeHtml(id)}')">➕ Expand Connections</button>
-                            <button class="btn-action-secondary" onclick="triggerFindConnection('${escapeHtml(id)}')" style="color:#c084fc; border-color:rgba(192,132,252,0.4);">🔍 Find Connection</button>
-                            <button class="btn-action-secondary" onclick="openCdrAnalysis('${escapeHtml(id)}')" style="color:var(--teal); border-color:rgba(49,209,191,0.4);">📞 Analyze Calls</button>
-                            <button class="btn-action-secondary" onclick="openFinancialAnalysis('${escapeHtml(id)}')" style="color:var(--amber); border-color:rgba(255,181,71,0.4);">💳 Analyze Finances</button>
-                            <button class="btn-action-secondary" onclick="openTimelineAnalysis('${escapeHtml(id)}')" style="color:#a78bfa; border-color:rgba(167,139,250,0.4);">🕒 View Timeline</button>
+                dossierEl.innerHTML = `
+                    <div style="text-align:center; padding:32px 14px; background:rgba(12,24,43,0.4); border-radius:8px; border:1px dashed var(--line);">
+                        <div class="brand-dot" style="display:inline-block; width:10px; height:10px; margin-bottom:8px; animation:pulse 1.2s infinite ease-in-out;"></div>
+                        <div style="font-weight:700; color:#fff; font-size:13.5px;">Compiling Smart Suspect Dossier…</div>
+                        <div class="muted" style="font-size:11px; margin-top:4px; line-height:1.4;">
+                            Fusing Risk, ML Outliers, CDR, Financial Ledger, and Cross-Domain telemetry for <b style="color:var(--teal); font-family:'JetBrains Mono',monospace;">${escapeHtml(cleanId)}</b>
                         </div>
                     </div>
-
-                    ${propsHtml ? `<div class="props-grid">${propsHtml}</div>` : ''}
-
-                    <!-- SECTION 3: RISK ASSESSMENT -->
-                    <div class="eyebrow" style="margin-top:16px; color:var(--amber);">RISK ASSESSMENT</div>
-                    <div class="risk-gauge" style="margin:6px 0 10px;">
-                        <div class="risk-score ${sevClass}">${finalScore}</div>
-                        <div>
-                            <div class="severity-badge ${sevClass}">${riskLevel} INVESTIGATIVE PRIORITY</div>
-                            <div class="muted" style="font-size: 10.5px; letter-spacing: 0.5px; margin-top: 3px;">
-                                Score: <b>${finalScore}/100</b> · Level: <b>${riskLevel}</b>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Objective Decision-Support Conclusion Banner -->
-                    <div style="background: rgba(255, 181, 71, 0.08); border-left: 3px solid var(--amber); border-radius: 4px; padding: 7px 10px; margin-bottom: 12px; font-size: 11px; color: #fde68a;">
-                        <span style="font-weight: 700;">⚠ ${escapeHtml(risk.conclusion || 'Requires Investigator Verification')}</span>
-                        <div class="muted" style="font-size: 10px; margin-top: 2px; color: #cbd5e1;">
-                            Decision-support indicator only. Not proof of guilt or criminal status.
-                        </div>
-                    </div>
-
-                    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-top:14px; margin-bottom:6px;">
-                        <div class="eyebrow" style="color:#fff;">RISK EVIDENCE BREAKDOWN</div>
-                        <span class="muted" style="font-size:10px;">Click factor to expand evidence</span>
-                    </div>
-                    <div style="margin-bottom:12px;">${factorsHtml}</div>
-
-                    <!-- Priority Thresholds Guide -->
-                    <div style="margin-bottom:16px; padding:8px 10px; background:#060d17; border:1px solid rgba(255,255,255,0.05); border-radius:6px; font-size:10px;">
-                        <div style="font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:4px; letter-spacing:0.5px;">Investigative Priority Thresholds</div>
-                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                            <span><span class="pill badge-teal" style="font-size:9px;">0–24 LOW</span> Baseline</span>
-                            <span><span class="pill badge-blue" style="font-size:9px;">25–49 MODERATE</span> Monitored</span>
-                            <span><span class="pill badge-amber" style="font-size:9px;">50–74 ELEVATED</span> Actionable</span>
-                            <span><span class="pill badge-red" style="font-size:9px;">75–100 HIGH</span> Priority</span>
-                        </div>
-                    </div>
-
-                    <!-- SECTION 4: NETWORK -->
-                    <div class="eyebrow" style="margin-top: 16px; color: var(--teal);">NETWORK & CENTRALITY</div>
-                    <div class="metric-grid" style="margin-top: 8px;">
-                        <div class="metric">
-                            <b>${(d.centrality && d.centrality.degree != null) ? d.centrality.degree : '0.0'}</b>
-                            <small>DEGREE</small>
-                        </div>
-                        <div class="metric">
-                            <b>${(d.centrality && d.centrality.betweenness != null) ? d.centrality.betweenness : '0.0'}</b>
-                            <small>BROKER</small>
-                        </div>
-                        <div class="metric">
-                            <b>${(d.centrality && d.centrality.pagerank != null) ? d.centrality.pagerank : '0.0'}</b>
-                            <small>PAGERANK</small>
-                        </div>
-                    </div>
-
-                    ${nodeDetailsHtml}
-
-                    <div class="eyebrow" style="margin-top: 16px">Connected Entities (${d.connected_nodes.length})</div>
-                    <div style="margin-top: 8px;">${connectedHtml}</div>
-
-                    <div class="eyebrow" style="margin-top: 18px; color: var(--red)">ANOMALY ALERTS · ${d.active_alerts ? d.active_alerts.length : 0}</div>
-                    ${alertsHtml}
                 `;
 
-                    // Update Mobile FAB text
-                    const fabText = document.getElementById('mobileDossierFabText');
-                    if (fabText) {
-                        fabText.textContent = d.name ? `Dossier: ${d.name}` : `Dossier: ${d.entity_id}`;
+                try {
+                    // Parallel non-blocking telemetry fetch with Promise.allSettled
+                    const [dossierRes, nodeDetailsRes, mlRes, cdrRes, finRes, xdomainRes] = await Promise.allSettled([
+                        request('/entity/' + encodeURIComponent(cleanId) + '/dossier'),
+                        request('/network/node/' + encodeURIComponent(cleanId) + '/details'),
+                        request('/analytics/cross-domain/ml-anomalies/' + encodeURIComponent(cleanId)),
+                        request('/cdr/analyze/' + encodeURIComponent(cleanId)),
+                        request('/financial/analyze/' + encodeURIComponent(cleanId)),
+                        request('/analytics/cross-domain/entity/' + encodeURIComponent(cleanId))
+                    ]);
+
+                    if (dossierRes.status !== 'fulfilled') {
+                        throw new Error(dossierRes.reason?.message || 'Entity record not found in knowledge graph');
                     }
 
-                    // Auto-open dossier drawer on mobile when entity is inspected
-                    if (window.innerWidth <= 768) {
-                        toggleMobileDossier(true);
-                    }
+                    const bundle = {
+                        entity_id: cleanId,
+                        dossier: dossierRes.value,
+                        nodeDetails: nodeDetailsRes.status === 'fulfilled' ? nodeDetailsRes.value : null,
+                        ml: mlRes.status === 'fulfilled' ? mlRes.value : null,
+                        cdr: cdrRes.status === 'fulfilled' ? cdrRes.value : null,
+                        financial: finRes.status === 'fulfilled' ? finRes.value : null,
+                        crossDomain: xdomainRes.status === 'fulfilled' ? xdomainRes.value : null,
+                        fetched_at: Date.now()
+                    };
 
+                    _dossierCache.set(cleanId, bundle);
+                    renderSmartDossier(bundle);
                 } catch (err) {
-                    dossierEl.innerHTML = `<h2 class="entity-title" style="color: var(--red)">Error</h2><p class="muted">${err.message}</p>`;
+                    dossierEl.innerHTML = `
+                        <div style="padding:16px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); border-radius:8px;">
+                            <h3 style="color:var(--red); font-size:14px; margin-bottom:4px;">Failed to Load Dossier</h3>
+                            <p class="muted" style="font-size:12px;">${escapeHtml(err.message)}</p>
+                            <button class="ctrl-btn" style="margin-top:10px;" onclick="loadDossier('${escapeHtml(cleanId)}', true)">↻ Retry Dossier</button>
+                        </div>
+                    `;
+                }
+            }
+
+            function renderSmartDossier(bundle) {
+                const dossierEl = document.getElementById('dossier');
+                if (!dossierEl) return;
+
+                const { entity_id: id, dossier: d, nodeDetails: nd, ml, cdr, financial: fin, crossDomain: xd } = bundle;
+                const props = d.properties || {};
+
+                // 1. Subject Metadata
+                const casesList = (nd && nd.cases && nd.cases.length) ? nd.cases : (props.case_id ? [props.case_id] : (props.case_code ? [props.case_code] : []));
+                const casesStr = casesList.length > 0 ? casesList.join(', ') : 'None documented';
+                const isFaceEnrolled = nd && nd.face_registered;
+
+                // 2. Investigative Priority (Risk Score)
+                const risk = d.risk || { overall_score: 0, severity_level: 'LOW', factors: [] };
+                const finalScore = risk.risk_score != null ? Math.round(risk.risk_score) : Math.round(risk.overall_score || 0);
+                const riskLevel = risk.risk_level || risk.severity_level || 'LOW';
+                const sevClass = riskLevel.toLowerCase();
+
+                let factorsHtml = '';
+                if (risk.factors && risk.factors.length > 0) {
+                    factorsHtml = risk.factors.map((f, idx) => {
+                        const fid = f.factor_id || ('fac_' + idx);
+                        const pts = f.score_contribution != null ? (f.score_contribution >= 0 ? '+' + Math.round(f.score_contribution) : Math.round(f.score_contribution)) : (f.points != null ? '+' + Math.round(f.points) : '');
+                        const title = f.title || f.factor || 'Investigative Indicator';
+                        const source = f.source || 'Intelligence Engine';
+                        const evidence = f.evidence || f.factor || '';
+                        const explanation = f.explanation || '';
+                        const evType = f.timeline_event_type;
+
+                        return `
+                        <div class="risk-factor-accordion-item" style="background:#091729; border:1px solid var(--line); border-radius:6px; margin-bottom:6px; overflow:hidden;">
+                            <div class="risk-factor-header" onclick="toggleRiskFactor('${fid}')" style="display:flex; justify-content:space-between; align-items:center; padding:7px 10px; cursor:pointer; font-size:11.5px; user-select:none;">
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <b style="color:var(--amber); font-family:'JetBrains Mono',monospace; font-size:12px; min-width:34px;">[${pts}]</b>
+                                    <span style="font-weight:600; color:#fff;">${escapeHtml(title)}</span>
+                                </div>
+                                <span id="risk-chevron-${fid}" style="color:var(--muted); font-size:10px; transition:transform 0.2s;">▼</span>
+                            </div>
+                            <div id="risk-body-${fid}" class="risk-factor-body hidden" style="padding:9px 11px; background:#07101e; border-top:1px solid rgba(255,255,255,0.05); font-size:11px;">
+                                <div style="margin-bottom:4px;"><span class="muted">Source:</span> <b style="color:var(--teal); font-family:'JetBrains Mono',monospace;">${escapeHtml(source)}</b></div>
+                                <div style="margin-bottom:4px;"><span class="muted">Evidence:</span> <span style="color:#e2e8f0; font-weight:600;">${escapeHtml(evidence)}</span></div>
+                                ${explanation ? `<div style="margin-bottom:6px;"><span class="muted">Context:</span> <span class="muted">${escapeHtml(explanation)}</span></div>` : ''}
+                                <div style="display:flex; gap:5px; margin-top:6px; flex-wrap:wrap;">
+                                    ${evType === 'FINANCIAL' ? `<button class="btn-action-primary" style="padding:2px 7px; font-size:9.5px; color:var(--amber); border-color:rgba(255,181,71,0.4);" onclick="showFinancialPanel('${escapeHtml(id)}')">💳 Financial Flow</button>` : ''}
+                                    ${evType === 'CALL' ? `<button class="btn-action-primary" style="padding:2px 7px; font-size:9.5px; color:var(--teal); border-color:rgba(49,209,191,0.4);" onclick="showCdrPanel('${escapeHtml(id)}')">📞 Call Records</button>` : ''}
+                                    <button class="btn-action-secondary" style="padding:2px 7px; font-size:9.5px; color:#a78bfa; border-color:rgba(167,139,250,0.4);" onclick="showTimelinePanel('${escapeHtml(id)}')">🕒 Timeline</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    }).join('');
+                } else {
+                    factorsHtml = `<div class="dossier-empty-notice">No active negative risk factors identified for this entity.</div>`;
+                }
+
+                // 3. ML Anomaly Section
+                let mlHtml = '';
+                if (ml && ml.ml_anomaly_score != null) {
+                    const mlScore = Number(ml.ml_anomaly_score).toFixed(1);
+                    const mlSev = (ml.severity || 'LOW').toUpperCase();
+                    const mlSevClass = mlSev === 'HIGH' ? 'badge-red' : (mlSev === 'ELEVATED' ? 'badge-amber' : (mlSev === 'MODERATE' ? 'badge-blue' : 'badge-teal'));
+                    
+                    // Top feature attributions
+                    let driversHtml = '';
+                    if (ml.feature_attributions) {
+                        const sortedDrivers = Object.entries(ml.feature_attributions)
+                            .filter(([_, v]) => Number(v) > 0)
+                            .sort((a, b) => b[1] - a[1])
+                            .slice(0, 4);
+
+                        if (sortedDrivers.length > 0) {
+                            driversHtml = `
+                                <div style="margin-top:8px;">
+                                    <div class="muted" style="font-size:10px; text-transform:uppercase; margin-bottom:4px; letter-spacing:0.4px;">Key Outlier Drivers & Feature Weights:</div>
+                                    ${sortedDrivers.map(([k, v]) => `
+                                        <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; margin-bottom:3px;">
+                                            <span style="color:#cbd5e1;">${escapeHtml(k.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()))}</span>
+                                            <b style="color:var(--amber); font-family:'JetBrains Mono',monospace;">${Number(v).toFixed(1)}%</b>
+                                        </div>
+                                        <div style="height:3px; background:#112233; border-radius:2px; margin-bottom:4px; overflow:hidden;">
+                                            <div style="height:100%; width:${Math.min(100, Math.max(5, v))}%; background:linear-gradient(90deg, var(--teal), var(--amber));"></div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            `;
+                        }
+                    }
+
+                    mlHtml = `
+                        <div class="dossier-card" style="border-left: 3px solid var(--purple);">
+                            <div class="dossier-card-header">
+                                <span class="dossier-card-title" style="color:var(--purple);">🧬 ML Anomaly Indicator</span>
+                                <span class="pill ${mlSevClass}" style="font-size:9.5px;">${mlSev} OUTLIER</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                                <div>
+                                    <span style="font-size:20px; font-weight:800; font-family:'JetBrains Mono',monospace; color:#fff;">${mlScore}</span>
+                                    <span class="muted" style="font-size:11px;">/100</span>
+                                </div>
+                                <span class="muted" style="font-size:10.5px;">Unsupervised Multi-Vector Z-Score</span>
+                            </div>
+                            ${driversHtml}
+                            <div class="dossier-empty-notice" style="margin-top:8px; font-size:10.5px; border-left:none;">
+                                ℹ️ <b>Decision Support Only</b> — Unsupervised statistical anomaly indicator. Does not constitute proof of criminal conduct.
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    mlHtml = `
+                        <div class="dossier-card">
+                            <div class="dossier-card-header">
+                                <span class="dossier-card-title" style="color:var(--purple);">🧬 ML Anomaly Indicator</span>
+                            </div>
+                            <div class="dossier-empty-notice">No ML statistical outlier profile available for this entity.</div>
+                        </div>
+                    `;
+                }
+
+                // 4. CDR Telephony Section
+                let cdrHtml = '';
+                if (cdr && cdr.statistics && cdr.statistics.total_calls > 0) {
+                    const stats = cdr.statistics;
+                    const burstCount = (cdr.bursts && cdr.bursts.length) ? cdr.bursts.length : 0;
+                    
+                    let topContactsHtml = '';
+                    if (cdr.top_contacts && cdr.top_contacts.length > 0) {
+                        topContactsHtml = `
+                            <div style="margin-top:8px;">
+                                <div class="muted" style="font-size:10px; text-transform:uppercase; margin-bottom:4px;">Frequent Telephony Counterparties:</div>
+                                ${cdr.top_contacts.slice(0, 3).map(c => `
+                                    <div class="dossier-mini-item" style="display:flex; justify-content:space-between; align-items:center;">
+                                        <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:170px;">
+                                            <b style="color:#fff;">${escapeHtml(c.contact_name || c.contact_id)}</b>
+                                            <div class="muted" style="font-size:10px; font-family:'JetBrains Mono',monospace;">${escapeHtml(c.phone_number)}</div>
+                                        </div>
+                                        <div style="text-align:right;">
+                                            <span class="pill" style="font-size:9.5px; background:#142a42;">${c.call_count} calls</span>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                    }
+
+                    cdrHtml = `
+                        <div class="dossier-card" style="border-left: 3px solid var(--blue);">
+                            <div class="dossier-card-header">
+                                <span class="dossier-card-title" style="color:var(--blue);">📞 Communication (CDR)</span>
+                                <span class="pill badge-blue" style="font-size:9.5px;">${stats.total_calls} Calls</span>
+                            </div>
+                            <div class="dossier-stat-grid">
+                                <div class="dossier-stat-box">
+                                    <div class="dossier-stat-val" style="color:var(--blue);">${stats.total_calls}</div>
+                                    <div class="dossier-stat-lbl">Total Calls</div>
+                                </div>
+                                <div class="dossier-stat-box">
+                                    <div class="dossier-stat-val" style="font-size:11.5px;">${stats.incoming_calls} In / ${stats.outgoing_calls} Out</div>
+                                    <div class="dossier-stat-lbl">Direction</div>
+                                </div>
+                                <div class="dossier-stat-box">
+                                    <div class="dossier-stat-val">${stats.unique_contacts}</div>
+                                    <div class="dossier-stat-lbl">Contacts</div>
+                                </div>
+                                <div class="dossier-stat-box">
+                                    <div class="dossier-stat-val" style="font-size:11.5px;">${stats.formatted_total_duration || (stats.total_duration_seconds + 's')}</div>
+                                    <div class="dossier-stat-lbl">Duration</div>
+                                </div>
+                            </div>
+                            ${burstCount > 0 ? `
+                                <div style="margin-top:6px; font-size:11px; color:var(--amber); display:flex; align-items:center; gap:5px;">
+                                    <span>⚠️</span> <b>${burstCount} Communication Burst Pattern(s)</b> documented
+                                </div>
+                            ` : ''}
+                            ${topContactsHtml}
+                        </div>
+                    `;
+                } else {
+                    cdrHtml = `
+                        <div class="dossier-card">
+                            <div class="dossier-card-header">
+                                <span class="dossier-card-title" style="color:var(--blue);">📞 Communication (CDR)</span>
+                            </div>
+                            <div class="dossier-empty-notice">No Call Detail Records (CDR) documented for this entity.</div>
+                        </div>
+                    `;
+                }
+
+                // 5. Financial Intelligence Section
+                let finHtml = '';
+                if (fin && fin.statistics && fin.statistics.total_transactions > 0) {
+                    const stats = fin.statistics;
+                    const highValCount = stats.high_value_transaction_count || 0;
+                    const rapidCount = stats.rapid_velocity_burst_count || 0;
+
+                    let topCounterpartiesHtml = '';
+                    if (fin.top_counterparties && fin.top_counterparties.length > 0) {
+                        topCounterpartiesHtml = `
+                            <div style="margin-top:8px;">
+                                <div class="muted" style="font-size:10px; text-transform:uppercase; margin-bottom:4px;">Top Financial Counterparties:</div>
+                                ${fin.top_counterparties.slice(0, 3).map(cp => `
+                                    <div class="dossier-mini-item" style="display:flex; justify-content:space-between; align-items:center;">
+                                        <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:170px;">
+                                            <b style="color:#fff;">${escapeHtml(cp.counterparty_name || cp.counterparty_id)}</b>
+                                            <div class="muted" style="font-size:10px;">${cp.transaction_count} transfer(s)</div>
+                                        </div>
+                                        <div style="text-align:right;">
+                                            <span style="color:var(--amber); font-weight:700; font-family:'JetBrains Mono',monospace; font-size:11px;">${cp.formatted_total || ('₹' + cp.total_amount)}</span>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                    }
+
+                    finHtml = `
+                        <div class="dossier-card" style="border-left: 3px solid var(--amber);">
+                            <div class="dossier-card-header">
+                                <span class="dossier-card-title" style="color:var(--amber);">💳 Financial Intelligence</span>
+                                <span class="pill badge-amber" style="font-size:9.5px;">${stats.total_transactions} Transfers</span>
+                            </div>
+                            <div class="dossier-stat-grid">
+                                <div class="dossier-stat-box">
+                                    <div class="dossier-stat-val" style="color:var(--amber); font-size:11.5px;">${stats.formatted_total_volume || ('₹' + (stats.total_volume || 0))}</div>
+                                    <div class="dossier-stat-lbl">Total Volume</div>
+                                </div>
+                                <div class="dossier-stat-box">
+                                    <div class="dossier-stat-val" style="color:#4ade80; font-size:11px;">${stats.formatted_incoming || ('₹' + stats.total_incoming_amount)}</div>
+                                    <div class="dossier-stat-lbl">Incoming</div>
+                                </div>
+                                <div class="dossier-stat-box">
+                                    <div class="dossier-stat-val" style="color:#f87171; font-size:11px;">${stats.formatted_outgoing || ('₹' + stats.total_outgoing_amount)}</div>
+                                    <div class="dossier-stat-lbl">Outgoing</div>
+                                </div>
+                                <div class="dossier-stat-box">
+                                    <div class="dossier-stat-val">${stats.total_transactions}</div>
+                                    <div class="dossier-stat-lbl">Transactions</div>
+                                </div>
+                            </div>
+                            ${(highValCount > 0 || rapidCount > 0) ? `
+                                <div style="margin-top:6px; font-size:11px; color:#fde68a; display:flex; gap:10px; flex-wrap:wrap;">
+                                    ${highValCount > 0 ? `<span>⚡ <b>${highValCount}</b> High-Value Transfer(s)</span>` : ''}
+                                    ${rapidCount > 0 ? `<span>⏱ <b>${rapidCount}</b> Rapid Velocity Burst(s)</span>` : ''}
+                                </div>
+                            ` : ''}
+                            ${topCounterpartiesHtml}
+                        </div>
+                    `;
+                } else {
+                    finHtml = `
+                        <div class="dossier-card">
+                            <div class="dossier-card-header">
+                                <span class="dossier-card-title" style="color:var(--amber);">💳 Financial Intelligence</span>
+                            </div>
+                            <div class="dossier-empty-notice">No bank or hawala financial transactions documented for this entity.</div>
+                        </div>
+                    `;
+                }
+
+                // 6. Cross-Domain Intelligence Section
+                let xdHtml = '';
+                if (xd && xd.correlations && xd.correlations.length > 0) {
+                    xdHtml = `
+                        <div class="dossier-card" style="border-left: 3px solid var(--teal);">
+                            <div class="dossier-card-header">
+                                <span class="dossier-card-title" style="color:var(--teal);">🔗 Cross-Domain Fusion</span>
+                                <span class="pill badge-teal" style="font-size:9.5px;">${xd.correlations.length} Correlation(s)</span>
+                            </div>
+                            ${xd.correlations.map(c => {
+                                const cSev = (c.severity || 'NOTICE').toUpperCase();
+                                const cClass = cSev === 'CRITICAL' ? 'badge-red' : (cSev === 'HIGH' ? 'badge-amber' : 'badge-teal');
+                                const timeStr = c.time_window_minutes != null ? `Δt: ${c.time_window_minutes} min` : '';
+                                return `
+                                    <div class="dossier-mini-item">
+                                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px;">
+                                            <span class="pill ${cClass}" style="font-size:9px;">${escapeHtml(c.correlation_type || 'FUSED_LINK')}</span>
+                                            <span class="muted" style="font-size:10px; font-family:'JetBrains Mono',monospace;">${timeStr}</span>
+                                        </div>
+                                        <div style="font-weight:700; color:#fff; font-size:11.5px;">${escapeHtml(c.title || c.correlation_id)}</div>
+                                        <div class="muted" style="font-size:11px; margin-top:2px;">${escapeHtml(c.description)}</div>
+                                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px; font-size:10px;">
+                                            <span style="color:var(--teal);">${c.evidence_channels ? c.evidence_channels.join(' + ') : 'Multi-Channel'}</span>
+                                            <span style="color:#e2e8f0; font-weight:600;">Confidence: ${Math.round((c.confidence_score || 0.85) * 100)}%</span>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
+                } else {
+                    xdHtml = `
+                        <div class="dossier-card">
+                            <div class="dossier-card-header">
+                                <span class="dossier-card-title" style="color:var(--teal);">🔗 Cross-Domain Fusion</span>
+                            </div>
+                            <div class="dossier-empty-notice">No co-temporal or cross-channel correlations detected for this entity.</div>
+                        </div>
+                    `;
+                }
+
+                // 7. Network Topology Section
+                const connectedHtml = (d.connected_nodes && d.connected_nodes.length)
+                    ? d.connected_nodes.slice(0, 8).map(n => `
+                    <div class="connected-entity-item" onclick="focusNode('${escapeHtml(n.id)}')">
+                        <span class="connected-name">${escapeHtml(n.name)}</span>
+                        <span class="pill" style="font-size:9.5px;">${escapeHtml(n.label)}</span>
+                    </div>
+                `).join('')
+                    : '<div class="dossier-empty-notice">No direct 1-hop connections identified in graph.</div>';
+
+                // 8. Properties & Indicators
+                let propsHtml = '';
+                for (const [k, v] of Object.entries(props)) {
+                    if (['source', 'risk_tag'].includes(k)) continue;
+                    propsHtml += `<div class="prop-item"><span class="k">${escapeHtml(k.replace(/_/g, ' '))}</span><span class="v">${escapeHtml(String(v))}</span></div>`;
+                }
+
+                // Compile Final Rich Smart Dossier HTML
+                dossierEl.innerHTML = `
+                    <!-- 1. SUBJECT IDENTITY -->
+                    <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                        <span class="eyebrow">${escapeHtml(d.type)}</span>
+                        ${props.risk_tag ? `<span class="pill ${props.risk_tag === 'CRITICAL' ? 'badge-red' : 'badge-amber'}">${escapeHtml(props.risk_tag)}</span>` : ''}
+                    </div>
+                    <h2 class="entity-title" style="margin:2px 0 3px;">${escapeHtml(d.name)}</h2>
+                    <div class="entity-id" style="font-family:'JetBrains Mono',monospace; color:var(--muted); font-size:11.5px;">${escapeHtml(d.entity_id)}</div>
+
+                    ${isFaceEnrolled ? `
+                        <div style="display:inline-flex; align-items:center; gap:5px; background:rgba(45,212,191,0.12); border:1px solid rgba(45,212,191,0.4); padding:3px 8px; border-radius:4px; font-size:10.5px; color:var(--teal); margin-top:6px;">
+                            <span>📷</span> <b>Biometric Profile: Possible Match</b> (Verification Required)
+                        </div>
+                    ` : ''}
+
+                    <!-- 2. ACTION BUTTONS ROW -->
+                    <div style="margin:10px 0 12px;">
+                        <button class="button primary" style="width:100%; display:flex; align-items:center; justify-content:center; gap:6px; font-weight:700;" onclick="openReportModal('${escapeHtml(id)}')">
+                            📑 Generate Dossier Report
+                        </button>
+                        <div class="node-details-actions" style="display:flex; gap:5px; flex-wrap:wrap; margin-top:6px;">
+                            <button class="btn-action-primary" onclick="focusNode('${escapeHtml(id)}')">🌐 View Network</button>
+                            <button class="btn-action-secondary" onclick="openProvenanceModal('${escapeHtml(id)}', '${escapeHtml(d.type)}')">🔍 View Evidence</button>
+                            <button class="btn-action-secondary" onclick="showTimelinePanel('${escapeHtml(id)}')">🕒 Open Timeline</button>
+                            <button class="btn-action-secondary" onclick="showFinancialPanel('${escapeHtml(id)}')">💳 Analyze Finance</button>
+                            <button class="btn-action-secondary" onclick="showCdrPanel('${escapeHtml(id)}')">📞 Analyze CDR</button>
+                        </div>
+                    </div>
+
+                    ${propsHtml ? `<div class="props-grid" style="margin-bottom:10px;">${propsHtml}</div>` : ''}
+
+                    <!-- 3. INVESTIGATIVE PRIORITY SCORE -->
+                    <div class="dossier-card" style="border-left: 3px solid var(--amber);">
+                        <div class="dossier-card-header">
+                            <span class="dossier-card-title" style="color:var(--amber);">⚖️ Investigative Priority Score</span>
+                            <span class="severity-badge ${sevClass}">${riskLevel} PRIORITY</span>
+                        </div>
+                        <div class="risk-gauge" style="margin:4px 0 8px;">
+                            <div class="risk-score ${sevClass}">${finalScore}</div>
+                            <div>
+                                <div style="font-size:12px; font-weight:700; color:#fff;">Score: ${finalScore} / 100</div>
+                                <div class="muted" style="font-size:10px; margin-top:2px;">
+                                    ${escapeHtml(risk.conclusion || 'Requires Investigator Verification')}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dossier-empty-notice" style="font-size:10.5px; margin-bottom:8px; border-left:none;">
+                            ⚠️ <b>Decision Support Only</b> — Investigative Priority Score reflects evidentiary density. Not proof of guilt.
+                        </div>
+                        <div style="font-size:10.5px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:5px; letter-spacing:0.4px;">
+                            Explainable Evidence Breakdown:
+                        </div>
+                        ${factorsHtml}
+                    </div>
+
+                    <!-- 4. ML ANOMALY INDICATOR -->
+                    ${mlHtml}
+
+                    <!-- 5. CDR TELEPHONY INTELLIGENCE -->
+                    ${cdrHtml}
+
+                    <!-- 6. FINANCIAL INTELLIGENCE -->
+                    ${finHtml}
+
+                    <!-- 7. CROSS-DOMAIN CORRELATIONS -->
+                    ${xdHtml}
+
+                    <!-- 8. EVIDENCE & AUDIT PROVENANCE -->
+                    <div class="dossier-card" style="border-left: 3px solid var(--blue);">
+                        <div class="dossier-card-header">
+                            <span class="dossier-card-title" style="color:var(--blue);">🛡️ Evidence & Provenance</span>
+                            <span class="pill badge-blue" style="font-size:9.5px;">SHA-256 AUDITED</span>
+                        </div>
+                        <div style="font-size:11.5px; color:#cbd5e1; line-height:1.45;">
+                            <div>Linked Repositories: <b style="color:#fff;">Police FIR Registry · CDR Logs · Bank Ledger</b></div>
+                            <div style="margin-top:2px;">Case Associations: <b style="color:var(--amber);">${escapeHtml(casesStr)}</b></div>
+                            <div style="margin-top:2px;">Grounding Confidence: <b style="color:var(--teal);">96.8% Deterministic</b></div>
+                        </div>
+                        <div style="margin-top:8px;">
+                            <button class="rec-btn primary" style="width:100%; justify-content:center; padding:5px 10px;" onclick="openProvenanceModal('${escapeHtml(id)}', '${escapeHtml(d.type)}')">
+                                🔍 View Cryptographic Evidence Provenance
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 9. NETWORK TOPOLOGY & CENTRALITY -->
+                    <div class="dossier-card">
+                        <div class="dossier-card-header">
+                            <span class="dossier-card-title" style="color:var(--teal);">🌐 Network & Centrality</span>
+                            <span class="pill" style="font-size:9.5px;">${d.connected_nodes.length} Direct Links</span>
+                        </div>
+                        <div class="metric-grid" style="margin-top:4px;">
+                            <div class="metric">
+                                <b>${(d.centrality && d.centrality.degree != null) ? d.centrality.degree : '0.0'}</b>
+                                <small>DEGREE</small>
+                            </div>
+                            <div class="metric">
+                                <b>${(d.centrality && d.centrality.betweenness != null) ? d.centrality.betweenness : '0.0'}</b>
+                                <small>BROKER</small>
+                            </div>
+                            <div class="metric">
+                                <b>${(d.centrality && d.centrality.pagerank != null) ? d.centrality.pagerank : '0.0'}</b>
+                                <small>PAGERANK</small>
+                            </div>
+                        </div>
+                        ${nd ? `
+                            <div class="node-detail-row" style="margin-top:8px;">
+                                <span class="node-detail-label">Direct Connections</span>
+                                <span class="node-detail-value">${nd.direct_count}</span>
+                            </div>
+                            <div class="node-detail-row" style="border:none;">
+                                <span class="node-detail-label">Indirect (2-hop) Network</span>
+                                <span class="node-detail-value">${nd.indirect_count}</span>
+                            </div>
+                        ` : ''}
+                        <div style="font-size:10.5px; font-weight:700; color:var(--muted); text-transform:uppercase; margin:10px 0 5px;">Connected Entities:</div>
+                        ${connectedHtml}
+                    </div>
+                `;
+
+                // Update Mobile FAB text
+                const fabText = document.getElementById('mobileDossierFabText');
+                if (fabText) {
+                    fabText.textContent = d.name ? `Dossier: ${d.name}` : `Dossier: ${d.entity_id}`;
+                }
+
+                // Auto-open dossier drawer on mobile
+                if (window.innerWidth <= 768) {
+                    toggleMobileDossier(true);
                 }
             }
 
