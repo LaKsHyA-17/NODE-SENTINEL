@@ -11,6 +11,7 @@ class NodeType(str, Enum):
     BANK_ACCOUNT = "BankAccount"
     CASE = "Case"
     ORGANIZATION = "Organization"
+    DATE = "Date"
 
 class EdgeType(str, Enum):
     CALLS = "CALLS"
@@ -19,6 +20,7 @@ class EdgeType(str, Enum):
     OWNS = "OWNS"
     OPERATES = "OPERATES"
     INVOLVED_IN = "INVOLVED_IN"
+    OCCURRED_ON = "OCCURRED_ON"
 
 @dataclass
 class Node:

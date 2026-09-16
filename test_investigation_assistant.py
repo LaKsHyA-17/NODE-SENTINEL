@@ -1,24 +1,26 @@
 # -*- coding: utf-8 -*-
 """
-Verification and Test Suite for STEP 13: AI Investigation Assistant for NODE SENTINEL.
+Verification and Test Suite for Grounded AI Investigation Assistant for NODE SENTINEL.
 
 Tests:
 1. Entity Resolution (exact ID, name, phone, account, vehicle, case)
 2. Ambiguous Entity Handling (clarification requested, no guessing)
-3. Unknown Entity Handling (clean no-record response, zero hallucination)
-4. Grounded Connections Inquiry ("Who is connected to X?")
-5. Grounded Call Telemetry Inquiry ("Show unusual call activity", "Show communication pattern")
-6. Grounded Financial Flow Inquiry ("Show unusual financial activity", "Show financial flow")
-7. Grounded Case Linkages Inquiry ("Which cases are connected to this person?")
-8. Grounded Temporal Timeline Inquiry ("Summarize timeline", date filtering)
-9. Grounded Explainable Risk Inquiry ("Why is this entity high risk?")
-10. Shortest Path Finder Inquiry ("Find the shortest connection between A and B")
-11. Investigation Summary Inquiry ("Summarize this investigation.")
-12. Multi-turn Follow-up Context ("Show Tariq" -> "Show his calls" -> "What about his finances?")
-13. Missing Telemetry Reporting (explicitly notes absent data)
-14. Safety & Compliance (no criminal guilt determinations)
-15. Navigation Actions Presence & Schema Validation
-16. REST API Endpoints Contract (POST /query, 400 on blank, /context, /reset, /suggestions)
+3. Unknown Entity Handling (clean no-record response: 'No supporting record was found in the current investigation dataset.')
+4. Question 1: 'Who is connected to X?'
+5. Question 2: 'Why is X flagged?'
+6. Question 3: 'Show unusual communication.'
+7. Question 4: 'Show unusual financial activity.'
+8. Question 5: 'Which cases are connected?'
+9. Question 6: 'What happened around a specific date?'
+10. Question 7: 'Find the shortest connection between A and B.'
+11. Question 8: 'What evidence supports this finding?'
+12. Question 9: 'Summarize the investigation.'
+13. Confidence & Source Grounding (confidence_score, confidence_label, sources, actions)
+14. Multi-turn Follow-up Context ('Show Tariq' -> 'Show his calls' -> 'What about his finances?')
+15. Missing Telemetry Reporting (explicitly notes absent data)
+16. Safety & Compliance (no criminal guilt determinations)
+17. Navigation Actions Presence & Schema Validation
+18. REST API Endpoints Contract (POST /query, 400 on blank, /context, /reset, /suggestions)
 """
 from __future__ import annotations
 
@@ -87,7 +89,6 @@ def test_entity_resolution_exact_and_modal(engine: AssistantEngine):
 # -----------------------------------------------------------------------------
 
 def test_ambiguous_entity_handling(engine: AssistantEngine):
-    # Search term matching multiple candidates
     req = InvestigationAssistantRequest(query="Who is connected to Sharma?")
     res = engine.process_query(req)
     if res.is_ambiguous:
@@ -103,146 +104,185 @@ def test_ambiguous_entity_handling(engine: AssistantEngine):
 def test_unknown_entity_handling(engine: AssistantEngine):
     req = InvestigationAssistantRequest(query="Who is connected to NonExistentGhostEntity999?")
     res = engine.process_query(req)
-    assert "No supporting record was found in the current investigation dataset" in res.answer
+    assert "No supporting record was found in the current investigation dataset." in res.answer
     assert len(res.evidence) == 0
     assert res.uncertainty is not None
 
 
 # -----------------------------------------------------------------------------
-# 4. Connections Inquiries
+# 4. Question 1: Who is connected to X?
 # -----------------------------------------------------------------------------
 
-def test_connections_inquiry(engine: AssistantEngine):
-    req = InvestigationAssistantRequest(query="What are Tariq Ahmad's strongest connections?")
+def test_question_1_who_is_connected_to_x(engine: AssistantEngine):
+    req = InvestigationAssistantRequest(query="Who is connected to Tariq Ahmad?")
     res = engine.process_query(req)
     assert "Tariq Ahmad" in res.answer
     assert len(res.evidence) >= 1
+    assert res.confidence_score > 0
+    assert res.confidence_label in ["HIGH", "MEDIUM", "LOW"]
     assert len(res.actions) >= 2
     action_types = [a.action_type for a in res.actions]
     assert AssistantActionType.VIEW_PROFILE in action_types
     assert AssistantActionType.VIEW_NETWORK in action_types
+    assert len(res.sources) >= 1
 
 
 # -----------------------------------------------------------------------------
-# 5. Call Telemetry Inquiries
+# 5. Question 2: Why is X flagged?
 # -----------------------------------------------------------------------------
 
-def test_call_telemetry_inquiry(engine: AssistantEngine):
-    # Global unusual calls
-    req_global = InvestigationAssistantRequest(query="Show unusual call activity.")
-    res_global = engine.process_query(req_global)
-    assert "call" in res_global.answer.lower()
-    assert len(res_global.evidence) >= 1
-
-    # Subject-specific communication pattern
-    req_subject = InvestigationAssistantRequest(
-        query="Show the communication pattern.",
-        selected_entity_id="PERSON_TARIQ_AHMAD"
-    )
-    res_subject = engine.process_query(req_subject)
-    assert "Tariq Ahmad" in res_subject.answer
-    assert any(a.action_type == AssistantActionType.ANALYZE_CALLS for a in res_subject.actions)
-
-
-# -----------------------------------------------------------------------------
-# 6. Financial Flow Inquiries
-# -----------------------------------------------------------------------------
-
-def test_financial_flow_inquiry(engine: AssistantEngine):
-    # Global financial activity
-    req_global = InvestigationAssistantRequest(query="Show unusual financial activity.")
-    res_global = engine.process_query(req_global)
-    assert "financial" in res_global.answer.lower()
-
-    # Subject-specific financial flow
-    req_subject = InvestigationAssistantRequest(
-        query="Show the financial flow.",
-        selected_entity_id="PERSON_TARIQ_AHMAD"
-    )
-    res_subject = engine.process_query(req_subject)
-    assert "Tariq Ahmad" in res_subject.answer
-    assert any(a.action_type == AssistantActionType.ANALYZE_FINANCES for a in res_subject.actions)
-
-
-# -----------------------------------------------------------------------------
-# 7. Case Linkages Inquiries
-# -----------------------------------------------------------------------------
-
-def test_case_linkages_inquiry(engine: AssistantEngine):
-    req = InvestigationAssistantRequest(
-        query="Which cases are connected to this person?",
-        selected_entity_id="PERSON_TARIQ_AHMAD"
-    )
+def test_question_2_why_is_x_flagged(engine: AssistantEngine):
+    req = InvestigationAssistantRequest(query="Why is Tariq Ahmad flagged?")
     res = engine.process_query(req)
     assert "Tariq Ahmad" in res.answer
-    assert len(res.relevant_cases) >= 1 or "case" in res.answer.lower()
-    assert any(a.action_type == AssistantActionType.VIEW_CASE for a in res.actions)
-
-
-# -----------------------------------------------------------------------------
-# 8. Timeline & Temporal Inquiries
-# -----------------------------------------------------------------------------
-
-def test_timeline_inquiry(engine: AssistantEngine):
-    req = InvestigationAssistantRequest(
-        query="Summarize timeline",
-        selected_entity_id="PERSON_TARIQ_AHMAD"
-    )
-    res = engine.process_query(req)
-    assert "Tariq Ahmad" in res.answer
-    assert any(a.action_type == AssistantActionType.VIEW_TIMELINE for a in res.actions)
-
-
-# -----------------------------------------------------------------------------
-# 9. Explainable Risk Inquiry
-# -----------------------------------------------------------------------------
-
-def test_risk_explanation_inquiry(engine: AssistantEngine):
-    req = InvestigationAssistantRequest(
-        query="Why is this entity high risk?",
-        selected_entity_id="PERSON_TARIQ_AHMAD"
-    )
-    res = engine.process_query(req)
     assert "Risk Score" in res.answer
     assert "Risk Level" in res.answer
     assert "Evidence Factors Breakdown" in res.answer
     assert len(res.risk_indicators) >= 1
     assert "decision-support" in res.answer.lower() or "investigator verification" in res.answer.lower()
-    assert any(a.action_type == AssistantActionType.VIEW_RISK for a in res.actions)
+    action_types = [a.action_type for a in res.actions]
+    assert AssistantActionType.VIEW_RISK in action_types
+    assert AssistantActionType.VIEW_EVIDENCE in action_types
 
 
 # -----------------------------------------------------------------------------
-# 10. Shortest Path Inquiries
+# 6. Question 3: Show unusual communication
 # -----------------------------------------------------------------------------
 
-def test_shortest_path_inquiry(engine: AssistantEngine):
-    # Connected entities
+def test_question_3_show_unusual_communication(engine: AssistantEngine):
+    # Global inquiry
+    req_global = InvestigationAssistantRequest(query="Show unusual communication.")
+    res_global = engine.process_query(req_global)
+    assert "communication" in res_global.answer.lower() or "call" in res_global.answer.lower()
+    assert len(res_global.evidence) >= 1
+    assert any(a.action_type == AssistantActionType.ANALYZE_CALLS for a in res_global.actions)
+    assert any(a.action_type == AssistantActionType.VIEW_EVIDENCE for a in res_global.actions)
+
+    # Subject-specific inquiry
+    req_sub = InvestigationAssistantRequest(query="Show unusual communication for Tariq Ahmad.")
+    res_sub = engine.process_query(req_sub)
+    assert "Tariq Ahmad" in res_sub.answer
+    assert len(res_sub.evidence) >= 1
+
+
+# -----------------------------------------------------------------------------
+# 7. Question 4: Show unusual financial activity
+# -----------------------------------------------------------------------------
+
+def test_question_4_show_unusual_financial_activity(engine: AssistantEngine):
+    # Global inquiry
+    req_global = InvestigationAssistantRequest(query="Show unusual financial activity.")
+    res_global = engine.process_query(req_global)
+    assert "financial" in res_global.answer.lower() or "transaction" in res_global.answer.lower()
+    assert len(res_global.evidence) >= 1
+    assert any(a.action_type == AssistantActionType.ANALYZE_FINANCES for a in res_global.actions)
+    assert any(a.action_type == AssistantActionType.VIEW_EVIDENCE for a in res_global.actions)
+
+    # Subject-specific inquiry
+    req_sub = InvestigationAssistantRequest(query="Show unusual financial activity for Tariq Ahmad.")
+    res_sub = engine.process_query(req_sub)
+    assert "Tariq Ahmad" in res_sub.answer
+    assert len(res_sub.evidence) >= 1
+
+
+# -----------------------------------------------------------------------------
+# 8. Question 5: Which cases are connected?
+# -----------------------------------------------------------------------------
+
+def test_question_5_which_cases_are_connected(engine: AssistantEngine):
+    # Global inquiry
+    req_global = InvestigationAssistantRequest(query="Which cases are connected?")
+    res_global = engine.process_query(req_global)
+    assert "case" in res_global.answer.lower() or "fir" in res_global.answer.lower()
+    assert len(res_global.evidence) >= 1
+    assert any(a.action_type == AssistantActionType.VIEW_CASE for a in res_global.actions)
+
+    # Subject-specific inquiry
+    req_sub = InvestigationAssistantRequest(query="Which cases are connected to Tariq Ahmad?")
+    res_sub = engine.process_query(req_sub)
+    assert "Tariq Ahmad" in res_sub.answer
+    assert len(res_sub.relevant_cases) >= 1 or "case" in res_sub.answer.lower()
+
+
+# -----------------------------------------------------------------------------
+# 9. Question 6: What happened around a specific date?
+# -----------------------------------------------------------------------------
+
+def test_question_6_what_happened_around_date(engine: AssistantEngine):
+    # Date inquiry with YYYY-MM-DD
+    req1 = InvestigationAssistantRequest(query="What happened around 2024-07-16?")
+    res1 = engine.process_query(req1)
+    assert "timeline" in res1.answer.lower() or "event" in res1.answer.lower() or "2024-07-16" in res1.answer
+    assert len(res1.evidence) >= 1
+    assert any(a.action_type == AssistantActionType.VIEW_TIMELINE for a in res1.actions)
+
+    # Subject-specific timeline
+    req2 = InvestigationAssistantRequest(
+        query="What happened around 2024-07-16 for Tariq Ahmad?",
+        selected_entity_id="PERSON_TARIQ_AHMAD"
+    )
+    res2 = engine.process_query(req2)
+    assert "Tariq Ahmad" in res2.answer
+
+
+# -----------------------------------------------------------------------------
+# 10. Question 7: Find the shortest connection between A and B
+# -----------------------------------------------------------------------------
+
+def test_question_7_find_shortest_connection(engine: AssistantEngine):
     req = InvestigationAssistantRequest(query="Find the shortest connection between Tariq Ahmad and DL01AB9988.")
     res = engine.process_query(req)
     assert "Shortest path between" in res.answer
     assert "hop(s)" in res.answer
     assert len(res.evidence) >= 1
+    assert res.confidence_score >= 0.90
+    assert any(a.action_type == AssistantActionType.VIEW_NETWORK for a in res.actions)
 
-    # Missing target
-    req_bad = InvestigationAssistantRequest(query="Find the shortest connection between Tariq Ahmad and GhostTarget999.")
-    res_bad = engine.process_query(req_bad)
-    assert "No connection path found" in res_bad.answer or "not found" in res_bad.answer
+    # Missing path or non-existent entity
+    req_missing = InvestigationAssistantRequest(query="Find the shortest connection between Tariq Ahmad and NonExistent999.")
+    res_missing = engine.process_query(req_missing)
+    assert "No supporting record was found in the current investigation dataset." in res_missing.answer
 
 
 # -----------------------------------------------------------------------------
-# 11. Investigation Overview / Summary
+# 11. Question 8: What evidence supports this finding?
 # -----------------------------------------------------------------------------
 
-def test_investigation_summary(engine: AssistantEngine):
-    req = InvestigationAssistantRequest(query="Summarize this investigation.")
+def test_question_8_what_evidence_supports_finding(engine: AssistantEngine):
+    req = InvestigationAssistantRequest(
+        query="What evidence supports this finding?",
+        selected_entity_id="PERSON_TARIQ_AHMAD"
+    )
+    res = engine.process_query(req)
+    assert "evidence records" in res.answer.lower()
+    assert "Tariq Ahmad" in res.answer
+    assert len(res.evidence) >= 1
+    assert len(res.sources) >= 1
+    assert any(a.action_type == AssistantActionType.VIEW_EVIDENCE for a in res.actions)
+
+    # Question with entity mentioned in text
+    req_text = InvestigationAssistantRequest(query="What evidence supports Tariq Ahmad?")
+    res_text = engine.process_query(req_text)
+    assert "Tariq Ahmad" in res_text.answer
+    assert len(res_text.evidence) >= 1
+
+
+# -----------------------------------------------------------------------------
+# 12. Question 9: Summarize the investigation
+# -----------------------------------------------------------------------------
+
+def test_question_9_summarize_investigation(engine: AssistantEngine):
+    req = InvestigationAssistantRequest(query="Summarize the investigation.")
     res = engine.process_query(req)
     assert "NODE SENTINEL" in res.answer or "Overview" in res.answer
     assert "Knowledge Graph Scale" in res.answer
     assert "Active Statistical Telemetry Alerts" in res.answer
+    assert len(res.evidence) >= 1
+    assert len(res.actions) >= 1
 
 
 # -----------------------------------------------------------------------------
-# 12. Multi-Turn Conversation Context & Follow-Ups
+# 13. Multi-Turn Conversation Context & Follow-Ups
 # -----------------------------------------------------------------------------
 
 def test_multi_turn_followup_context(engine: AssistantEngine):
@@ -271,18 +311,17 @@ def test_multi_turn_followup_context(engine: AssistantEngine):
 
 
 # -----------------------------------------------------------------------------
-# 13. Missing Telemetry Reporting
+# 14. Missing Telemetry Reporting
 # -----------------------------------------------------------------------------
 
 def test_missing_telemetry_reporting(engine: AssistantEngine):
-    # Check Anita Deshmukh (has financial but no registered cases)
     req = InvestigationAssistantRequest(query="Which cases are connected to Anita Deshmukh?")
     res = engine.process_query(req)
     assert "No registered criminal FIRs" in res.answer or "0 linked CASE" in res.uncertainty or "0" in str(res.evidence)
 
 
 # -----------------------------------------------------------------------------
-# 14. Neutral Decision Support Terminology
+# 15. Neutral Decision Support Terminology
 # -----------------------------------------------------------------------------
 
 def test_neutral_decision_support_language(engine: AssistantEngine):
@@ -294,7 +333,7 @@ def test_neutral_decision_support_language(engine: AssistantEngine):
 
 
 # -----------------------------------------------------------------------------
-# 15. REST API Endpoints Contract
+# 16. REST API Endpoints Contract
 # -----------------------------------------------------------------------------
 
 def test_api_assistant_endpoints():
@@ -307,6 +346,8 @@ def test_api_assistant_endpoints():
     data = resp.json()
     assert "answer" in data
     assert len(data["actions"]) >= 1
+    assert data["confidence_score"] > 0
+    assert data["confidence_label"] in ["HIGH", "MEDIUM", "LOW"]
     assert data["conversation_id"] is not None
     cid = data["conversation_id"]
 

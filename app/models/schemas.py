@@ -38,6 +38,13 @@ class IngestTextResponse(BaseModel):
     extracted_relations_count: int
     entities: List[Dict[str, Any]]
     relationships: List[Dict[str, Any]]
+    created_nodes: List[Dict[str, Any]] = Field(default_factory=list)
+    created_edges: List[Dict[str, Any]] = Field(default_factory=list)
+    merged_entities: List[Dict[str, Any]] = Field(default_factory=list)
+    warnings: List[str] = Field(default_factory=list)
+    summary_by_type: Optional[Dict[str, int]] = Field(default_factory=dict)
+    file_hash: Optional[str] = None
+    case_id: Optional[str] = None
 
 class IngestFileResponse(BaseModel):
     status: str
@@ -47,6 +54,13 @@ class IngestFileResponse(BaseModel):
     extracted_relations_count: int
     entities: List[Dict[str, Any]]
     relationships: List[Dict[str, Any]]
+    created_nodes: List[Dict[str, Any]] = Field(default_factory=list)
+    created_edges: List[Dict[str, Any]] = Field(default_factory=list)
+    merged_entities: List[Dict[str, Any]] = Field(default_factory=list)
+    warnings: List[str] = Field(default_factory=list)
+    summary_by_type: Optional[Dict[str, int]] = Field(default_factory=dict)
+    file_hash: Optional[str] = None
+    case_id: Optional[str] = None
 
 class SearchQuery(BaseModel):
     query: str

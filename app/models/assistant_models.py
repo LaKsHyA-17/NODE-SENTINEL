@@ -26,6 +26,8 @@ class AssistantActionType(str, Enum):
     VIEW_TIMELINE = "VIEW_TIMELINE"
     VIEW_RISK = "VIEW_RISK"
     VIEW_CASE = "VIEW_CASE"
+    VIEW_EVIDENCE = "VIEW_EVIDENCE"
+    FIND_SHORTEST_PATH = "FIND_SHORTEST_PATH"
 
 
 class AssistantAction(BaseModel):
@@ -37,7 +39,7 @@ class AssistantAction(BaseModel):
 
 
 class AssistantSource(BaseModel):
-    source_type: str  # GRAPH, CDR, FINANCIAL, TIMELINE, RISK, CASE, SEARCH, BIOMETRIC
+    source_type: str  # GRAPH, CDR, FINANCIAL, TIMELINE, RISK, CASE, SEARCH, BIOMETRIC, PROVENANCE
     reference_id: str
     title: str
     details: Optional[str] = None
@@ -68,6 +70,8 @@ class InvestigationAssistantResponse(BaseModel):
     relevant_calls: List[Dict[str, Any]] = Field(default_factory=list)
     relevant_financial: List[Dict[str, Any]] = Field(default_factory=list)
     risk_indicators: List[str] = Field(default_factory=list)
+    confidence_score: float = 0.95
+    confidence_label: str = "HIGH"
     uncertainty: Optional[str] = None
     sources: List[AssistantSource] = Field(default_factory=list)
     actions: List[AssistantAction] = Field(default_factory=list)

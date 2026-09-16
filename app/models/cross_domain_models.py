@@ -1,6 +1,14 @@
 # -*- coding: utf-8 -*-
 """
 NODE SENTINEL - Cross-Domain Correlation Data Models
+Standardized schemas for multi-source evidence fusion across:
+- Police FIR & Case records
+- CDR Telephony logs
+- Financial Ledger transfers
+- Knowledge Graph topology
+- Surveillance Locations & Hotspots
+- Chronological Timelines
+- Biometric Face match registry
 """
 from __future__ import annotations
 
@@ -10,7 +18,8 @@ from pydantic import BaseModel, Field
 
 class CrossDomainCorrelationItem(BaseModel):
     correlation_id: str
-    correlation_type: str  # e.g. CALL_TO_TRANSFER, CO_TEMPORAL_PRESENCE, MULTI_CHANNEL_MATCH
+    correlation_type: str  # e.g. CALL_TO_TRANSFER, CO_TEMPORAL_PRESENCE, FIR_CASE_ASSOCIATION, BIOMETRIC_ALIGNMENT, GRAPH_TOPOLOGY
+    signal_type: Optional[str] = Field(None, description="Descriptive category of multi-channel signal")
     severity: str          # CRITICAL, HIGH, ELEVATED, NOTICE
     title: str
     description: str
@@ -18,8 +27,15 @@ class CrossDomainCorrelationItem(BaseModel):
     time_window_minutes: Optional[float] = None
     first_timestamp: str
     second_timestamp: Optional[str] = None
-    evidence_channels: List[str]  # e.g. ["CDR_TELEPHONY", "BANK_LEDGER", "LOCATION_SURVEILLANCE"]
-    confidence_score: float = Field(..., ge=0.0, le=1.0)
+    timestamp: Optional[str] = Field(None, description="Primary timestamp or temporal anchor")
+    source: Optional[str] = Field(None, description="Data sources fused in this correlation")
+    evidence_channels: List[str] = Field(default_factory=list, description="List of telemetry channel tags")
+    confidence_score: float = Field(..., ge=0.0, le=1.0, description="Calibrated confidence score")
+    confidence: Optional[float] = Field(None, description="Alias for confidence_score")
+    evidence_snippet: Optional[str] = Field(None, description="Supporting textual evidence quote from source")
+    graph_relationship: Optional[str] = Field(None, description="Observed Knowledge Graph edge relationship or pathway")
+    timeline_link: Optional[Dict[str, Any]] = Field(None, description="Actionable filter parameters for timeline navigation")
+    source_evidence_link: Optional[Dict[str, Any]] = Field(None, description="Actionable parameters for provenance inspection")
     details: Dict[str, Any] = Field(default_factory=dict)
     recommended_action: Optional[str] = None
 
@@ -30,7 +46,7 @@ class CrossDomainSummaryResponse(BaseModel):
     high_count: int
     correlations: List[CrossDomainCorrelationItem]
     channels_monitored: List[str]
-    disclaimer: str = "Requires Investigator Verification: Cross-domain telemetry links represent statistical temporal correlations."
+    disclaimer: str = "Decision-Support Notice: Cross-domain telemetry links represent observed statistical correlations across independent data channels. Correlation does not imply causation unless explicitly established in source records."
 
 
 class EntityCrossDomainProfile(BaseModel):
@@ -42,3 +58,15 @@ class EntityCrossDomainProfile(BaseModel):
     correlations: List[CrossDomainCorrelationItem]
     associated_channels: List[str]
     multi_channel_risk_index: float
+    disclaimer: str = "Decision-Support Notice: Correlated activities represent observed multi-channel patterns. Requires investigator verification."
+
+
+class CaseCrossDomainProfile(BaseModel):
+    case_id: str
+    case_title: Optional[str] = None
+    total_fused_events: int
+    highest_severity: str
+    involved_entities: List[str] = Field(default_factory=list)
+    correlations: List[CrossDomainCorrelationItem]
+    associated_channels: List[str]
+    disclaimer: str = "Decision-Support Notice: Case-level multi-source correlations reflect observed relational and temporal patterns."

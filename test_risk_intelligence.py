@@ -149,7 +149,7 @@ def test_cdr_communication_factor(detector: AnomalyDetector):
     cf = cdr_factors[0]
     assert cf.source == "CDR Analysis"
     assert cf.timeline_event_type == "CALL"
-    assert cf.action_hint == "openCdrAnalysis"
+    assert "CDR" in cf.action_hint
 
 
 def test_financial_factor(detector: AnomalyDetector):
@@ -160,7 +160,7 @@ def test_financial_factor(detector: AnomalyDetector):
     ff = fin_factors[0]
     assert ff.source == "Financial Analysis"
     assert ff.timeline_event_type == "FINANCIAL"
-    assert ff.action_hint == "openFinancialAnalysis"
+    assert "Financial" in ff.action_hint or "Transactions" in ff.action_hint
 
 
 def test_case_linkage_factor(detector: AnomalyDetector):
@@ -192,11 +192,12 @@ def test_evidence_traceability(detector: AnomalyDetector):
 def test_neutral_decision_support_language(detector: AnomalyDetector):
     """Language must emphasize decision support and avoid declaring guilt."""
     res = detector.calculate_investigative_risk_score("PERSON_TARIQ_AHMAD")
-    assert "Requires Investigator Verification" in res.conclusion
+    assert "Decision-Support Signal" in res.conclusion or "Does not prove criminal activity" in res.conclusion
     for f in res.factors:
         # Must not declare guilt
         assert "is guilty" not in f.explanation.lower()
         assert "is a criminal" not in f.explanation.lower()
+        assert "proves crime" not in f.explanation.lower()
 
 
 # ===================================================================
@@ -210,7 +211,7 @@ def test_unknown_entity_handling(detector: AnomalyDetector):
     assert res.risk_score == 0.0
     assert res.risk_level == "LOW"
     assert len(res.factors) == 0
-    assert "Requires Investigator Verification" in res.conclusion
+    assert "Decision-Support Signal" in res.conclusion or "Does not prove" in res.conclusion
 
 
 def test_no_evidence_entity(detector: AnomalyDetector):
@@ -281,3 +282,151 @@ def test_timeline_integration_with_risk_entity(client: TestClient):
     timeline_resp = client.get("/api/timeline/PERSON_TARIQ_AHMAD")
     assert timeline_resp.status_code == 200
     assert timeline_resp.json()["total_events"] > 0
+
+
+# ===================================================================
+# 8. Explainable Breakdown & Regression Tests
+# ===================================================================
+
+def test_explainable_breakdown_all_required_fields(detector: AnomalyDetector):
+    """
+    Regression Test: For every anomaly/risk result, expose an explainable breakdown:
+    - total score
+    - severity
+    - individual contributing factors
+    - numerical contribution
+    - underlying metric
+    - source
+    - evidence
+    - timestamp where available
+    - involved entities
+    """
+    res = detector.calculate_investigative_risk_score("PERSON_TARIQ_AHMAD")
+    assert res.total_score is not None
+    assert res.total_score == res.risk_score
+    assert res.severity is not None
+    assert res.severity == res.risk_level
+    assert len(res.factors) > 0
+
+    for factor in res.factors:
+        # 1. Numerical contribution
+        assert factor.numerical_contribution is not None
+        assert factor.numerical_contribution == factor.score_contribution
+        assert factor.numerical_contribution > 0
+
+        # 2. Underlying metric
+        assert factor.underlying_metric is not None
+        assert len(factor.underlying_metric.strip()) > 0
+
+        # 3. Source
+        assert factor.source is not None
+        assert len(factor.source.strip()) > 0
+
+        # 4. Evidence
+        assert factor.evidence is not None
+        assert len(factor.evidence.strip()) > 0
+
+        # 5. Involved entities
+        assert isinstance(factor.involved_entities, list)
+        assert len(factor.involved_entities) >= 1
+
+        # 6. Action type & hint for UI navigation
+        assert factor.action_hint is not None
+        assert factor.action_type is not None
+
+
+def test_cdr_communication_burst_factor_breakdown(detector: AnomalyDetector):
+    """
+    Regression Test:
+    Example:
+    'Communication burst'
+    → 8 calls in 24 hours
+    → source: CDR file
+    → involved entities: Person A, Person B
+    → [View CDR]
+    """
+    res = detector.calculate_investigative_risk_score("PERSON_TARIQ_AHMAD")
+    cdr_factors = [f for f in res.factors if f.category == RiskCategory.CDR]
+    assert len(cdr_factors) >= 1
+
+    cf = cdr_factors[0]
+    assert "cdr" in cf.source.lower()
+    assert cf.underlying_metric is not None
+    assert "call" in cf.underlying_metric.lower() or "duration" in cf.underlying_metric.lower()
+    assert len(cf.involved_entities) >= 1
+    assert cf.action_type == "VIEW_CDR"
+    assert "CDR" in cf.action_hint
+
+
+def test_financial_velocity_factor_breakdown(detector: AnomalyDetector):
+    """
+    Regression Test:
+    Example:
+    'Financial velocity'
+    → 4 transfers in 120 minutes / high-value volume
+    → source: financial ledger
+    → [View Transactions]
+    """
+    res = detector.calculate_investigative_risk_score("PERSON_TARIQ_AHMAD")
+    fin_factors = [f for f in res.factors if f.category == RiskCategory.FINANCIAL]
+    assert len(fin_factors) >= 1
+
+    ff = fin_factors[0]
+    assert "financ" in ff.source.lower()
+    assert ff.underlying_metric is not None
+    assert "₹" in ff.underlying_metric or "transfer" in ff.underlying_metric.lower() or "transaction" in ff.underlying_metric.lower()
+    assert len(ff.involved_entities) >= 1
+    assert ff.action_type == "VIEW_FINANCE"
+    assert "Financial" in ff.action_hint or "Transaction" in ff.action_hint
+
+
+def test_strict_decision_support_language_compliance(detector: AnomalyDetector):
+    """
+    Regression Test:
+    Never say the score proves criminal activity.
+    Use:
+    - 'Investigative risk indicator'
+    - 'Anomalous pattern'
+    - 'Decision-support signal'
+    """
+    res = detector.calculate_investigative_risk_score("PERSON_TARIQ_AHMAD")
+    
+    # 1. Result conclusion & disclaimer
+    assert "proves criminal activity" not in res.conclusion.lower() or "does not prove" in res.conclusion.lower()
+    assert "Decision-Support Signal" in res.conclusion or "Investigative risk indicator" in res.conclusion
+    assert "Decision-Support Signal" in res.disclaimer
+    assert "Does not prove criminal activity" in res.disclaimer or "do not prove criminal activity" in res.disclaimer
+
+    # 2. Factor titles & explanations
+    for f in res.factors:
+        assert "is guilty" not in f.explanation.lower()
+        assert "proven criminal" not in f.explanation.lower()
+        assert "proves crime" not in f.explanation.lower()
+        # Verify factor categories are aligned
+        assert f.category in [RiskCategory.REGISTRY, RiskCategory.GRAPH, RiskCategory.CDR, RiskCategory.FINANCIAL, RiskCategory.CASE, RiskCategory.LOCATION, RiskCategory.BEHAVIORAL]
+
+
+def test_api_returns_explainable_breakdown_contract(client: TestClient):
+    """
+    Regression Test: Verify GET /api/risk/{entity_id} contract returns all 8 required explainable fields.
+    """
+    resp = client.get("/api/risk/PERSON_TARIQ_AHMAD")
+    assert resp.status_code == 200
+    data = resp.json()
+
+    assert "total_score" in data
+    assert "severity" in data
+    assert "risk_score" in data
+    assert "risk_level" in data
+    assert "factors" in data
+    assert "disclaimer" in data
+
+    for factor in data["factors"]:
+        assert "numerical_contribution" in factor
+        assert "underlying_metric" in factor
+        assert "source" in factor
+        assert "evidence" in factor
+        assert "involved_entities" in factor
+        assert "action_hint" in factor
+        assert "action_type" in factor
+        assert "confidence" in factor

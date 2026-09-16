@@ -1,4 +1,5 @@
 import os
+import asyncio
 import logging
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
@@ -21,6 +22,7 @@ from app.api.routes_auth import router as auth_router
 from app.api.routes_users import router as users_router
 from app.api.routes_audit import router as audit_router
 from app.api.routes_cross_domain import router as cross_domain_router
+from app.api.routes_evidence import router as evidence_router
 from app.core.audit_logger import audit_logger
 from app.models.audit_models import AuditAction
 from app.core.graph_engine import get_graph_engine
@@ -80,7 +82,22 @@ async def lifespan(fastapi_app: FastAPI):
     except Exception as e:
         logger.warning(f"Could not auto-seed demo financial data: {e}")
 
+    # Initialize keep-alive self-ping worker (prevents Render 15-minute idle spin-down)
+    keep_alive_task = None
+    try:
+        from app.core.keep_alive import start_keep_alive_loop
+        keep_alive_task = asyncio.create_task(start_keep_alive_loop())
+    except Exception as e:
+        logger.warning(f"Could not start keep-alive task: {e}")
+
     yield
+
+    if keep_alive_task and not keep_alive_task.done():
+        keep_alive_task.cancel()
+        try:
+            await keep_alive_task
+        except (asyncio.CancelledError, Exception):
+            pass
 
     audit_logger.log(
         action=AuditAction.SYSTEM_SHUTDOWN,
@@ -124,6 +141,7 @@ app.include_router(risk_router, prefix=settings.API_V1_STR)
 app.include_router(assistant_router, prefix=settings.API_V1_STR)
 app.include_router(reports_router, prefix=settings.API_V1_STR)
 app.include_router(cross_domain_router, prefix=settings.API_V1_STR)
+app.include_router(evidence_router, prefix=settings.API_V1_STR)
 
 
 # Static Files Setup

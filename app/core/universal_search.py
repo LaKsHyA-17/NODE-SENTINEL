@@ -25,6 +25,7 @@ import logging
 import re
 from typing import Any, Dict, List, Optional, Set, Tuple
 
+from app.core.entity_resolver import EntityResolver, get_entity_resolver
 from app.core.face_storage import FaceStorage, get_face_storage
 from app.core.graph_engine import BaseGraphEngine, get_graph_engine
 from app.models.graph_models import NodeType
@@ -43,12 +44,14 @@ class UniversalSearchEngine:
         self,
         graph_engine: Optional[BaseGraphEngine] = None,
         face_storage: Optional[FaceStorage] = None,
+        entity_resolver: Optional[EntityResolver] = None,
     ) -> None:
         self.graph_engine = graph_engine or get_graph_engine()
         self.face_storage = face_storage or get_face_storage()
+        self.entity_resolver = entity_resolver or get_entity_resolver()
 
     # -----------------------------------------------------------------------
-    # Normalization Utilities
+    # Normalization Utilities (Unified via EntityResolver)
     # -----------------------------------------------------------------------
 
     @staticmethod
@@ -56,76 +59,40 @@ class UniversalSearchEngine:
         """Strip leading/trailing whitespace and reduce internal multiple spaces."""
         return " ".join(text.strip().split())
 
-    @staticmethod
-    def normalize_phone(query: str) -> Set[str]:
-        """
-        Normalize phone query into candidate formats (+91XXXXXXXXXX, XXXXXXXXXX).
-        Handles queries with spaces, dashes, parentheses, dots.
-        """
+    def normalize_phone(self, query: str) -> Set[str]:
+        """Normalize phone query into candidate formats via EntityResolver."""
+        canonical_id, e164, raw_digits = self.entity_resolver.canonicalize_phone(query)
+        if not raw_digits or len(raw_digits) < 5:
+            return set()
+        variants = {query.strip(), e164, raw_digits, canonical_id, f"+91{raw_digits}", f"91{raw_digits}"}
         cleaned = re.sub(r"[\s\-\(\)\.\+]", "", query)
-        variants = {query.strip(), cleaned}
-
-        # If 10 digits starting with [6-9]
-        if re.fullmatch(r"[6-9]\d{9}", cleaned):
-            variants.add(f"+91{cleaned}")
-            variants.add(f"91{cleaned}")
-            variants.add(cleaned)
-        # If 12 digits starting with 91
-        elif len(cleaned) == 12 and cleaned.startswith("91"):
-            raw_10 = cleaned[2:]
-            variants.add(f"+91{raw_10}")
-            variants.add(cleaned)
-            variants.add(raw_10)
-
-        # Also add with + if not already
-        if query.startswith("+"):
-            variants.add("+" + cleaned)
-
+        variants.add(cleaned)
         return {v for v in variants if v}
 
-    @staticmethod
-    def normalize_vehicle(query: str) -> Set[str]:
-        """
-        Normalize Indian vehicle registration number (e.g. 'UP 14 AB 1234' -> 'UP14AB1234').
-        """
-        cleaned = re.sub(r"[\s\-\.]", "", query).upper()
-        return {query.strip().upper(), cleaned}
+    def normalize_vehicle(self, query: str) -> Set[str]:
+        """Normalize vehicle registration number via EntityResolver."""
+        canonical_id, clean_plate = self.entity_resolver.canonicalize_vehicle(query)
+        if not clean_plate:
+            return set()
+        return {query.strip().upper(), clean_plate, canonical_id}
 
-    @staticmethod
-    def normalize_case(query: str) -> Set[str]:
-        """
-        Normalize case codes (e.g. 'FIR-2024-311', 'CASE_FIR_2024_311', 'crim 2024 089').
-        """
+    def normalize_case(self, query: str) -> Set[str]:
+        """Normalize case codes via EntityResolver."""
+        canonical_id, clean_code = self.entity_resolver.canonicalize_case(query)
+        if not clean_code:
+            return set()
         upper = query.strip().upper()
-        variants = {upper}
-        # Replace spaces/hyphens with underscore
         underscored = re.sub(r"[\s\-]", "_", upper)
-        variants.add(underscored)
-        # Replace spaces/underscores with hyphen
         hyphenated = re.sub(r"[\s_]", "-", upper)
-        variants.add(hyphenated)
-        # With CASE_ prefix or without
-        if not upper.startswith("CASE_"):
-            variants.add(f"CASE_{underscored}")
-        else:
-            variants.add(upper.replace("CASE_", ""))
-        return variants
+        return {upper, clean_code, canonical_id, underscored, hyphenated}
 
-    @staticmethod
-    def normalize_account(query: str) -> Set[str]:
-        """
-        Normalize bank account query (e.g. 'ACC990188231', '990188231', 'A/C 990188231').
-        """
+    def normalize_account(self, query: str) -> Set[str]:
+        """Normalize bank account query via EntityResolver."""
+        canonical_id, clean_num = self.entity_resolver.canonicalize_account(query)
+        if not clean_num or len(clean_num) < 5:
+            return set()
         upper = query.strip().upper()
-        cleaned = re.sub(r"[\s\-\.\/]", "", upper)
-        variants = {upper, cleaned}
-        # Strip ACC prefix
-        without_acc = re.sub(r"^(?:ACC|A\/C|AC)", "", cleaned)
-        if without_acc:
-            variants.add(without_acc)
-            variants.add(f"ACC{without_acc}")
-            variants.add(f"ACC_{without_acc}")
-        return variants
+        return {upper, clean_num, canonical_id, f"ACC{clean_num}", f"ACC_{clean_num}"}
 
     # -----------------------------------------------------------------------
     # Graph Enrichment Helpers
@@ -198,9 +165,7 @@ class UniversalSearchEngine:
     def search(self, query: str, limit: int = 25) -> UniversalSearchResponse:
         """
         Execute universal search across Person ID, Name, Phone, Vehicle, Case ID, Account.
-
-        Returns:
-            UniversalSearchResponse: Structured, ranked results grouped by entity type.
+        Integrates canonicalization and conservative fuzzy person matching with 'Possible Match' flags.
         """
         raw_query = query or ""
         clean_q = self.normalize_text(raw_query)
@@ -237,57 +202,76 @@ class UniversalSearchEngine:
             n_type = node.label.value if hasattr(node.label, "value") else str(node.label)
             n_type_upper = n_type.upper()
             props = node.properties or {}
+            observed = props.get("observed_values", [])
+            aliases = props.get("aliases", [])
 
             score = 0
             match_type = "none"
 
             # ---------------------------------------------------------------
-            # 1. EXACT MATCHES (Score 100 - 110)
+            # 1. EXACT IDENTIFIER & CANONICAL MATCHES (Score 100 - 110)
             # ---------------------------------------------------------------
             # 1.1 Exact ID match (case-insensitive)
             if q_lower == n_id_lower:
                 score = 110
                 match_type = "exact_id"
 
-            # 1.2 Exact Name match (case-insensitive)
-            elif q_lower == n_name_lower:
+            # 1.2 Exact Name or Alias match
+            elif q_lower == n_name_lower or any(q_lower == str(a).lower() for a in aliases):
                 score = 105
                 match_type = "exact_name"
 
-            # 1.3 Phone Number exact match
-            elif n_type_upper in ("PHONE", "PERSON"):
-                node_phone = str(props.get("phone_number", n_name)).strip()
+            # 1.3 Phone Number exact match (checks phone property, ID, and observed values)
+            elif phone_variants and n_type_upper in ("PHONE", "PERSON"):
+                node_phone = str(props.get("phone_number", n_name if n_type_upper == "PHONE" else "")).strip()
                 node_phone_variants = self.normalize_phone(node_phone)
-                if any(v in node_phone_variants for v in phone_variants):
+                for obs in observed:
+                    node_phone_variants.update(self.normalize_phone(str(obs)))
+                if any(v in node_phone_variants for v in phone_variants) or (n_type_upper == "PHONE" and n_id in phone_variants):
                     score = 100
                     match_type = "exact_phone"
 
             # 1.4 Vehicle Registration exact match
-            if score < 100 and n_type_upper in ("VEHICLE", "PERSON"):
-                node_plate = str(props.get("registration", props.get("plate", n_name))).strip()
+            if score < 100 and vehicle_variants and n_type_upper in ("VEHICLE", "PERSON"):
+                node_plate = str(props.get("registration", props.get("plate", n_name if n_type_upper == "VEHICLE" else ""))).strip()
                 node_veh_variants = self.normalize_vehicle(node_plate)
-                if any(v in node_veh_variants for v in vehicle_variants):
+                for obs in observed:
+                    node_veh_variants.update(self.normalize_vehicle(str(obs)))
+                if any(v in node_veh_variants for v in vehicle_variants) or (n_type_upper == "VEHICLE" and n_id in vehicle_variants):
                     score = 100
                     match_type = "exact_vehicle"
 
             # 1.5 Case ID / Code exact match
-            if score < 100 and n_type_upper in ("CASE", "PERSON"):
-                node_case = str(props.get("case_code", props.get("case_id", n_name))).strip()
-                node_case_variants = self.normalize_case(node_case) | self.normalize_case(n_id)
-                if any(v in node_case_variants for v in case_variants):
+            if score < 100 and case_variants and n_type_upper in ("CASE", "PERSON"):
+                node_case = str(props.get("case_code", props.get("case_id", n_name if n_type_upper == "CASE" else ""))).strip()
+                node_case_variants = self.normalize_case(node_case) | (self.normalize_case(n_id) if n_type_upper == "CASE" else set())
+                for obs in observed:
+                    node_case_variants.update(self.normalize_case(str(obs)))
+                if any(v in node_case_variants for v in case_variants) or (n_type_upper == "CASE" and n_id in case_variants):
                     score = 100
                     match_type = "exact_case"
 
             # 1.6 Bank Account exact match
-            if score < 100 and n_type_upper in ("BANKACCOUNT", "BANK_ACCOUNT", "PERSON"):
-                node_acc = str(props.get("account_number", n_name)).strip()
-                node_acc_variants = self.normalize_account(node_acc) | self.normalize_account(n_id)
-                if any(v in node_acc_variants for v in account_variants):
+            if score < 100 and account_variants and n_type_upper in ("BANKACCOUNT", "BANK_ACCOUNT", "PERSON"):
+                node_acc = str(props.get("account_number", n_name if n_type_upper in ("BANKACCOUNT", "BANK_ACCOUNT") else "")).strip()
+                node_acc_variants = self.normalize_account(node_acc) | (self.normalize_account(n_id) if n_type_upper in ("BANKACCOUNT", "BANK_ACCOUNT") else set())
+                for obs in observed:
+                    node_acc_variants.update(self.normalize_account(str(obs)))
+                if any(v in node_acc_variants for v in account_variants) or (n_type_upper in ("BANKACCOUNT", "BANK_ACCOUNT") and n_id in account_variants):
                     score = 100
                     match_type = "exact_account"
 
             # ---------------------------------------------------------------
-            # 2. PREFIX & UNPREFIXED ID MATCHES (Score 80 - 95)
+            # 2. PERSON NAME FUZZY & CANDIDATE MATCHING (Score 80 - 95)
+            # ---------------------------------------------------------------
+            if score == 0 and n_type_upper == "PERSON":
+                person_match = self.entity_resolver.match_person_name(clean_q, n_name)
+                if person_match["match_score"] >= 80:
+                    score = person_match["match_score"]
+                    match_type = "possible_match" if person_match["is_ambiguous"] else "exact_name"
+
+            # ---------------------------------------------------------------
+            # 3. PREFIX & UNPREFIXED ID MATCHES (Score 80 - 95)
             # ---------------------------------------------------------------
             if score == 0:
                 # Strip domain prefixes like PERSON_, CASE_, VEH_, PHONE_, ACC_
@@ -303,23 +287,19 @@ class UniversalSearchEngine:
                     match_type = "id_prefix"
 
             # ---------------------------------------------------------------
-            # 3. PARTIAL & SUBSTRING MATCHES (Score 40 - 75)
+            # 4. PARTIAL & SUBSTRING MATCHES (Score 40 - 75)
             # ---------------------------------------------------------------
             if score == 0:
-                # Token matching: all words in query present in name
                 q_words = [w for w in q_lower.split() if len(w) > 1]
                 if q_words and all(w in n_name_lower for w in q_words):
                     score = 75
                     match_type = "partial_name_tokens"
-                # Substring in name
                 elif len(q_lower) >= 3 and q_lower in n_name_lower:
                     score = 65
                     match_type = "partial_name_substring"
-                # Substring in ID
                 elif len(q_lower) >= 3 and q_lower in n_id_lower:
                     score = 55
                     match_type = "partial_id_substring"
-                # Property alias / role substring
                 else:
                     alias = str(props.get("alias", "")).lower()
                     role = str(props.get("role", "")).lower()

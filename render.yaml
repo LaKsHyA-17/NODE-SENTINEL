@@ -1,10 +1,12 @@
 services:
   - type: web
     name: node-sentinel-api
-    env: python
+    env: docker
+    dockerfilePath: ./Dockerfile
     region: oregon
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    plan: free
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.8
+      - key: KEEP_ALIVE_INTERVAL_SECONDS
+        value: "600"
+      - key: OCR_ENABLED
+        value: "true"

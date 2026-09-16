@@ -16,6 +16,10 @@ class BaseGraphEngine(ABC):
     @abstractmethod
     def get_node(self, node_id: str) -> Optional[Node]: ...
     @abstractmethod
+    def get_edge(self, edge_id: str) -> Optional[Edge]: ...
+    @abstractmethod
+    def get_edge_between(self, source_id: str, target_id: str, relationship: Optional[str] = None) -> Optional[Edge]: ...
+    @abstractmethod
     def get_all_nodes(self) -> List[Node]: ...
     @abstractmethod
     def get_all_edges(self) -> List[Edge]: ...
@@ -55,6 +59,20 @@ class NetworkXGraphEngine(BaseGraphEngine):
 
     def get_node(self, node_id: str) -> Optional[Node]:
         return self._nodes.get(node_id)
+
+    def get_edge(self, edge_id: str) -> Optional[Edge]:
+        return self._edges.get(edge_id)
+
+    def get_edge_between(self, source_id: str, target_id: str, relationship: Optional[str] = None) -> Optional[Edge]:
+        for edge in self._edges.values():
+            if edge.source == source_id and edge.target == target_id:
+                if relationship is None:
+                    return edge
+                rel_str = edge.relationship.value if hasattr(edge.relationship, "value") else str(edge.relationship)
+                target_rel = relationship.value if hasattr(relationship, "value") else str(relationship)
+                if rel_str.upper() == target_rel.upper():
+                    return edge
+        return None
 
     def get_all_nodes(self) -> List[Node]:
         return list(self._nodes.values())
