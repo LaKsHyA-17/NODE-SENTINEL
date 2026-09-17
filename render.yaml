@@ -1,8 +1,9 @@
 services:
   - type: web
     name: node-sentinel-api
-    env: docker
+    runtime: docker
     dockerfilePath: ./Dockerfile
+    dockerContext: .
     region: oregon
     plan: free
     envVars:
@@ -10,3 +11,5 @@ services:
         value: "600"
       - key: OCR_ENABLED
         value: "true"
+      - key: TESSERACT_CMD
+        value: "/usr/bin/tesseract"

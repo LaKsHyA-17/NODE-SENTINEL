@@ -441,3 +441,22 @@ def test_image_upload_without_ocr_engine_returns_clear_error(client: TestClient,
     data = resp.json()
     assert "No OCR engine" in data["detail"] or "Cannot process image" in data["detail"]
 
+
+def test_ocr_status_endpoint(client: TestClient):
+    """
+    Verify GET /ocr-status and /api/ocr-status return valid JSON schema with
+    tesseract_available, executable_path, version, and status flags.
+    """
+    for endpoint in ("/ocr-status", "/api/ocr-status"):
+        resp = client.get(endpoint)
+        assert resp.status_code == 200, f"Endpoint {endpoint} failed: {resp.text}"
+        data = resp.json()
+        assert "status" in data
+        assert "tesseract_available" in data
+        assert isinstance(data["tesseract_available"], bool)
+        assert "pymupdf_available" in data
+        assert isinstance(data["pymupdf_available"], bool)
+        assert "winocr_available" in data
+        assert isinstance(data["winocr_available"], bool)
+        assert "executable_path" in data
+        assert "version" in data

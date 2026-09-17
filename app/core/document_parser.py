@@ -86,6 +86,53 @@ def find_tesseract_binary() -> Optional[str]:
     return None
 
 
+def get_ocr_engine_info() -> dict:
+    """
+    Returns diagnostic information about OCR availability,
+    executable path, Tesseract version, PyMuPDF, and WinOCR support.
+    """
+    tesseract_path = find_tesseract_binary()
+    version = None
+    tesseract_available = False
+
+    if tesseract_path and PYTESSERACT_MODULE_AVAILABLE:
+        try:
+            pytesseract.pytesseract.tesseract_cmd = tesseract_path
+            ver_obj = pytesseract.get_tesseract_version()
+            version = str(ver_obj) if ver_obj else None
+            tesseract_available = True
+        except Exception:
+            pass
+
+    if tesseract_path and not version:
+        try:
+            import subprocess
+            res = subprocess.run([tesseract_path, "--version"], capture_output=True, text=True, timeout=3)
+            if res.returncode == 0 and res.stdout:
+                first_line = res.stdout.splitlines()[0].strip()
+                v_match = re.search(r"tesseract\s+([0-9a-zA-Z\.\-]+)", first_line, re.IGNORECASE)
+                version = v_match.group(1) if v_match else first_line
+                tesseract_available = True
+        except Exception:
+            pass
+
+    is_ocr_available = bool(tesseract_available or WINOCR_AVAILABLE)
+    status = "ready" if is_ocr_available else ("digital_only" if PYMUPDF_AVAILABLE else "unavailable")
+
+    return {
+        "status": status,
+        "ocr_available": is_ocr_available,
+        "tesseract_available": tesseract_available,
+        "tesseract_path": tesseract_path if (tesseract_available or tesseract_path) else None,
+        "executable_path": tesseract_path if (tesseract_available or tesseract_path) else None,
+        "tesseract_version": version,
+        "version": version,
+        "pymupdf_available": PYMUPDF_AVAILABLE,
+        "winocr_available": WINOCR_AVAILABLE,
+    }
+
+
+
 class DocumentParser:
     """
     Extracts text content from uploaded PDF reports and photo/image copies of FIRs.

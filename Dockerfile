@@ -1,9 +1,15 @@
 FROM python:3.11-slim
 
-# Install system dependencies including Tesseract OCR and English language data
+# Set environment variables for Python and Tesseract
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    TESSERACT_CMD=/usr/bin/tesseract
+
+# Install system dependencies including Tesseract OCR, English language model, and Poppler utilities
 RUN apt-get update && apt-get install -y --no-install-recommends \
     tesseract-ocr \
     tesseract-ocr-eng \
+    poppler-utils \
     libgl1 \
     libglib2.0-0 \
     curl \

@@ -166,6 +166,15 @@ def health_check():
     }
 
 
+@app.get("/ocr-status", tags=["system"])
+@app.get("/api/ocr-status", tags=["system"])
+def ocr_status():
+    """Returns OCR engine diagnostic availability, Tesseract binary path, and version."""
+    from app.core.document_parser import get_ocr_engine_info
+    return get_ocr_engine_info()
+
+
+
 @app.get("/", include_in_schema=False)
 def serve_dashboard():
     """Serve single-page investigator dashboard frontend."""
