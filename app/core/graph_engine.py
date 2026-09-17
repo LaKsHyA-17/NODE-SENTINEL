@@ -1,7 +1,7 @@
 """Small, dependency-light graph storage used when Neo4j is not configured."""
 from abc import ABC, abstractmethod
 from collections import deque
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import networkx as nx
 
