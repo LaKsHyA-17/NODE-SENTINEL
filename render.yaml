@@ -13,6 +13,12 @@ services:
         value: "false"
       - key: REQUIRE_AUTH
         value: "true"
+      - key: ALLOW_EPHEMERAL_AUTH_STORAGE
+        value: "true"
+      - key: USERS_FILE
+        value: /app/data/users.json
+      - key: AUDIT_FILE
+        value: /app/data/audit_log.json
       - key: SECRET_KEY
         generateValue: true
       - key: CORS_ORIGINS

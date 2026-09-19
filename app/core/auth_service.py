@@ -194,11 +194,21 @@ class UserRepository:
         with self._lock:
             self.file_path.parent.mkdir(parents=True, exist_ok=True)
             if not self.file_path.exists() or self.file_path.stat().st_size == 0:
-                if not settings.DEMO_MODE:
+                if not settings.DEMO_MODE and not settings.ALLOW_EPHEMERAL_AUTH_STORAGE:
                     raise RuntimeError(
                         "No user store is configured. Set USERS_FILE to a persistent, access-controlled user store "
                         "before starting a non-demo deployment."
                     )
+                sample_file = Path(settings._DEFAULT_USERS_FILE)
+                if sample_file.exists() and sample_file.resolve() != self.file_path.resolve():
+                    try:
+                        import shutil
+                        shutil.copyfile(sample_file, self.file_path)
+                        logger.info(f"Initialized user store at {self.file_path} from {sample_file}")
+                        return
+                    except Exception as e:
+                        logger.warning(f"Could not copy from {sample_file}: {e}")
+
                 logger.info("Initializing users database with seed accounts...")
                 now_str = datetime.now(timezone.utc).isoformat()
                 seed_users = [

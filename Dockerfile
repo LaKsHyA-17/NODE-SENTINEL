@@ -24,6 +24,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application source code
 COPY . .
 
+# Create runtime data directory
+RUN mkdir -p /app/data
+
 # Expose default port
 EXPOSE 10000
 

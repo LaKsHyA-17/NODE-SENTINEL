@@ -169,6 +169,7 @@ NODE SENTINEL guides officers through a streamlined 6-step investigation lifecyc
 - **Role-Based Access Control**: Strict access boundaries across `ADMIN`, `INVESTIGATOR`, `ANALYST`, and `VIEWER`.
 - **Sensitive Identifier Protection**: Phone numbers and bank accounts masked by default; unmasking requires server-side permission verification.
 - **Tamper-Evident Audit Logging**: Logs every search, report generation, data query, and sensitive data reveal. Automatically scrubs passwords, bearer tokens, and credentials.
+- **Hosting / Storage Persistence Note**: Render free-tier deployment uses ephemeral authentication and audit storage. User-created accounts and audit history may be reset when the service is recreated. Persistent authentication/audit storage requires a persistent disk or external database.
 
 ---
 

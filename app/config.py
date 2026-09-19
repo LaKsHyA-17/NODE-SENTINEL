@@ -20,6 +20,7 @@ class Settings:
     IS_PRODUCTION = APP_ENV in {"production", "prod"}
     DEMO_MODE = _as_bool(os.environ.get("DEMO_MODE"), default=not IS_PRODUCTION)
     REQUIRE_AUTH = _as_bool(os.environ.get("REQUIRE_AUTH"), default=not DEMO_MODE)
+    ALLOW_EPHEMERAL_AUTH_STORAGE = _as_bool(os.environ.get("ALLOW_EPHEMERAL_AUTH_STORAGE"), default=False)
 
     # Security & Auth Settings
     SECRET_KEY = os.environ.get("SECRET_KEY", "")

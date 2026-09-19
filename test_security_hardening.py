@@ -53,3 +53,124 @@ def test_login_cookie_is_http_only_and_same_site(monkeypatch):
     assert "httponly" in cookie
     assert "samesite=strict" in cookie
     assert "secure" in cookie
+
+
+def test_security_validation_rejects_weak_secret_key():
+    import pytest
+    from app.config import Settings
+    s = Settings()
+    s.REQUIRE_AUTH = True
+    s.SECRET_KEY = "too-short"
+    s.CORS_ORIGINS = ["https://node-sentinel.onrender.com"]
+    s.DEMO_MODE = False
+    s.USERS_FILE = "/secure/users.json"
+    s.USERS_FILE_CONFIGURED = True
+    s.AUDIT_FILE = "/secure/audit.json"
+    s.AUDIT_FILE_CONFIGURED = True
+
+    with pytest.raises(RuntimeError, match="SECRET_KEY"):
+        s.validate_security_configuration()
+
+
+def test_security_validation_rejects_wildcard_cors():
+    import pytest
+    from app.config import Settings
+    s = Settings()
+    s.REQUIRE_AUTH = True
+    s.SECRET_KEY = "a" * 32
+    s.CORS_ORIGINS = ["*"]
+    s.DEMO_MODE = False
+    s.USERS_FILE = "/secure/users.json"
+    s.USERS_FILE_CONFIGURED = True
+    s.AUDIT_FILE = "/secure/audit.json"
+    s.AUDIT_FILE_CONFIGURED = True
+
+    with pytest.raises(RuntimeError, match="CORS_ORIGINS"):
+        s.validate_security_configuration()
+
+
+def test_security_validation_rejects_demo_mode_when_auth_required():
+    import pytest
+    from app.config import Settings
+    s = Settings()
+    s.REQUIRE_AUTH = True
+    s.SECRET_KEY = "a" * 32
+    s.CORS_ORIGINS = ["https://node-sentinel.onrender.com"]
+    s.DEMO_MODE = True
+    s.USERS_FILE = "/secure/users.json"
+    s.USERS_FILE_CONFIGURED = True
+    s.AUDIT_FILE = "/secure/audit.json"
+    s.AUDIT_FILE_CONFIGURED = True
+
+    with pytest.raises(RuntimeError, match="DEMO_MODE"):
+        s.validate_security_configuration()
+
+
+def test_security_validation_rejects_missing_users_file():
+    import pytest
+    from app.config import Settings
+    s = Settings()
+    s.REQUIRE_AUTH = True
+    s.SECRET_KEY = "a" * 32
+    s.CORS_ORIGINS = ["https://node-sentinel.onrender.com"]
+    s.DEMO_MODE = False
+    s.USERS_FILE_CONFIGURED = False
+    s.AUDIT_FILE = "/secure/audit.json"
+    s.AUDIT_FILE_CONFIGURED = True
+
+    with pytest.raises(RuntimeError, match="USERS_FILE"):
+        s.validate_security_configuration()
+
+
+def test_security_validation_rejects_bundled_users_file():
+    import pytest
+    from app.config import Settings
+    s = Settings()
+    s.REQUIRE_AUTH = True
+    s.SECRET_KEY = "a" * 32
+    s.CORS_ORIGINS = ["https://node-sentinel.onrender.com"]
+    s.DEMO_MODE = False
+    s.USERS_FILE = s._DEFAULT_USERS_FILE
+    s.USERS_FILE_CONFIGURED = True
+    s.AUDIT_FILE = "/secure/audit.json"
+    s.AUDIT_FILE_CONFIGURED = True
+
+    with pytest.raises(RuntimeError, match="bundled demo user store"):
+        s.validate_security_configuration()
+
+
+def test_security_validation_rejects_missing_audit_file():
+    import pytest
+    from app.config import Settings
+    s = Settings()
+    s.REQUIRE_AUTH = True
+    s.SECRET_KEY = "a" * 32
+    s.CORS_ORIGINS = ["https://node-sentinel.onrender.com"]
+    s.DEMO_MODE = False
+    s.USERS_FILE = "/secure/users.json"
+    s.USERS_FILE_CONFIGURED = True
+    s.AUDIT_FILE_CONFIGURED = False
+
+    with pytest.raises(RuntimeError, match="AUDIT_FILE"):
+        s.validate_security_configuration()
+
+
+def test_security_validation_accepts_valid_ephemeral_demo_configuration():
+    from app.config import Settings
+    s = Settings()
+    s.REQUIRE_AUTH = True
+    s.SECRET_KEY = "a" * 32
+    s.CORS_ORIGINS = ["https://node-sentinel.onrender.com"]
+    s.DEMO_MODE = False
+    s.ALLOW_EPHEMERAL_AUTH_STORAGE = True
+    s.USERS_FILE = "/app/data/users.json"
+    s.USERS_FILE_CONFIGURED = True
+    s.AUDIT_FILE = "/app/data/audit_log.json"
+    s.AUDIT_FILE_CONFIGURED = True
+
+    # Must pass validation without raising
+    s.validate_security_configuration()
+    assert s.REQUIRE_AUTH is True
+    assert s.DEMO_MODE is False
+    assert s.ALLOW_EPHEMERAL_AUTH_STORAGE is True
+

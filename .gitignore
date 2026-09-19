@@ -11,3 +11,7 @@ venv/
 *Copy*
 *- Copy*
 *- Copy.*
+data/
+/data/
+app/data/
+/app/data/

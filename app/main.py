@@ -1,4 +1,7 @@
 import os
+import json
+import shutil
+from pathlib import Path
 import asyncio
 import logging
 from fastapi import Depends, FastAPI
@@ -42,6 +45,23 @@ from contextlib import asynccontextmanager
 @asynccontextmanager
 async def lifespan(fastapi_app: FastAPI):
     """Auto-load synthetic dataset on server startup if graph engine is empty and record startup audit."""
+    if settings.ALLOW_EPHEMERAL_AUTH_STORAGE:
+        try:
+            users_p = Path(settings.USERS_FILE)
+            users_p.parent.mkdir(parents=True, exist_ok=True)
+            sample_p = Path(settings._DEFAULT_USERS_FILE)
+            if not users_p.exists() and sample_p.exists() and sample_p.resolve() != users_p.resolve():
+                shutil.copyfile(sample_p, users_p)
+                logger.info(f"Lifespan: Initialized ephemeral user store at {users_p} from {sample_p}")
+            audit_p = Path(settings.AUDIT_FILE)
+            audit_p.parent.mkdir(parents=True, exist_ok=True)
+            if not audit_p.exists():
+                with open(audit_p, "w", encoding="utf-8") as f:
+                    json.dump([], f, indent=2)
+                logger.info(f"Lifespan: Initialized empty audit log at {audit_p}")
+        except Exception as e:
+            logger.warning(f"Failed to initialize ephemeral auth/audit storage: {e}")
+
     audit_logger.log(
         action=AuditAction.SYSTEM_STARTUP,
         status="SUCCESS",
