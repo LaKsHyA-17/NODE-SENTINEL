@@ -224,3 +224,95 @@ def test_cross_domain_api_endpoints():
     # 4. Blank input resilience
     res_blank = client.get("/api/analytics/cross-domain/entity/%20")
     assert res_blank.status_code == 400
+
+
+def test_hidden_link_shared_phone_detection():
+    """Verify discovery of subjects connected through shared phone numbers."""
+    engine = get_cross_domain_fusion_engine()
+    phone_links = engine.detect_shared_phone_correlations()
+    assert isinstance(phone_links, list)
+    for link in phone_links:
+        assert link.correlation_type == "SHARED_PHONE"
+        assert link.signal_type == "Hidden Link: Shared Phone Lead"
+        assert len(link.entities_involved) >= 2
+        assert link.details.get("provenance_nature") == "INFERRED_CONNECTION"
+        assert "shared phone" in link.evidence_snippet.lower() or "telephony" in link.evidence_snippet.lower()
+
+
+def test_hidden_link_shared_bank_account_detection():
+    """Verify discovery of subjects connected through shared bank accounts."""
+    engine = get_cross_domain_fusion_engine()
+    acc_links = engine.detect_shared_account_correlations()
+    assert isinstance(acc_links, list)
+    for link in acc_links:
+        assert link.correlation_type == "SHARED_ACCOUNT"
+        assert link.signal_type == "Hidden Link: Shared Bank Account Lead"
+        assert link.severity == "CRITICAL"
+        assert link.details.get("provenance_nature") == "INFERRED_CONNECTION"
+
+
+def test_hidden_link_shared_vehicle_detection():
+    """Verify discovery of subjects associated with the same vehicle registration."""
+    engine = get_cross_domain_fusion_engine()
+    veh_links = engine.detect_shared_vehicle_correlations()
+    assert isinstance(veh_links, list)
+    for link in veh_links:
+        assert link.correlation_type == "SHARED_VEHICLE"
+        assert link.signal_type == "Hidden Link: Shared Vehicle Lead"
+        assert link.details.get("provenance_nature") == "INFERRED_CONNECTION"
+
+
+def test_hidden_link_cross_case_detection():
+    """Verify discovery of entities linked across multiple distinct FIR cases."""
+    engine = get_cross_domain_fusion_engine()
+    cross_cases = engine.detect_cross_case_link_correlations()
+    assert isinstance(cross_cases, list)
+    for link in cross_cases:
+        assert link.correlation_type == "CROSS_CASE_LINK"
+        assert link.signal_type == "Hidden Link: Cross-Case Association"
+        assert len(link.details.get("case_ids", [])) >= 2 or len(link.entities_involved) >= 2
+
+
+def test_hidden_link_intermediary_bridge_detection():
+    """Verify discovery of intermediary bridge nodes connecting unlinked subjects."""
+    engine = get_cross_domain_fusion_engine()
+    bridges = engine.detect_intermediary_bridge_correlations()
+    assert isinstance(bridges, list)
+    for link in bridges:
+        assert link.correlation_type == "INTERMEDIARY_BRIDGE"
+        assert link.signal_type == "Hidden Link: Intermediary Bridge Node"
+        assert len(link.entities_involved) >= 3
+        assert link.details.get("provenance_nature") == "INFERRED_CONNECTION"
+
+
+def test_hidden_link_direct_vs_derived_provenance():
+    """Verify that direct evidence and derived hidden connections are clearly distinguished."""
+    engine = get_cross_domain_fusion_engine()
+    summary = engine.get_all_cross_domain_correlations()
+
+    direct_count = 0
+    derived_count = 0
+
+    for item in summary.correlations:
+        prov_nature = item.details.get("provenance_nature", "DIRECT_EVIDENCE")
+        assert prov_nature in ("DIRECT_EVIDENCE", "INFERRED_CONNECTION")
+        if prov_nature == "DIRECT_EVIDENCE":
+            direct_count += 1
+        elif prov_nature == "INFERRED_CONNECTION":
+            derived_count += 1
+            assert "intermediary_nodes" in item.details or "derivation_basis" in item.details
+
+    assert direct_count + derived_count == summary.total_correlations
+
+
+def test_hidden_link_no_fabricated_evidence():
+    """Verify that all hidden link correlations have grounded evidence snippets without empty placeholders."""
+    engine = get_cross_domain_fusion_engine()
+    summary = engine.get_all_cross_domain_correlations()
+
+    for item in summary.correlations:
+        assert item.evidence_snippet is not None
+        assert len(item.evidence_snippet.strip()) > 10
+        assert item.source is not None
+        assert len(item.source.strip()) > 0
+        assert item.confidence_score > 0.0

@@ -40,6 +40,10 @@ class EvidenceProvenanceRecord(BaseModel):
     highlighted_text: Optional[str] = Field(None, description="Pre-highlighted HTML span of the evidence in source text")
     has_provenance: bool = Field(True, description="Whether valid source evidence was located")
     status_message: Optional[str] = Field(None, description="Notice message if provenance is unavailable")
+    provenance_nature: str = Field("DIRECT_EVIDENCE", description="DIRECT_EVIDENCE vs INFERRED_CONNECTION")
+    source_domain: Optional[str] = Field(None, description="Domain category: FIR, CDR, FINANCIAL, BIOMETRIC, or CROSS_DOMAIN")
+    derivation_basis: Optional[str] = Field(None, description="Explicit factual explanation of how an inferred or derived connection was established")
+    intermediary_nodes: List[str] = Field(default_factory=list, description="List of intermediary or bridge node IDs")
     metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional contextual metadata attributes")
 
 

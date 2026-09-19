@@ -309,11 +309,20 @@ class EvidenceEngine:
         node = self.graph_engine.get_node(first_ent)
         ent_name = node.name if node else first_ent
 
+        details = target.details or {}
+        prov_nature = details.get(
+            "provenance_nature",
+            "INFERRED_CONNECTION" if ("Hidden Link" in (target.signal_type or "") or "SHARED" in (target.correlation_type or "") or "BRIDGE" in (target.correlation_type or "")) else "DIRECT_EVIDENCE"
+        )
+        src_domain = details.get("source_domain", "CROSS_DOMAIN")
+        deriv_basis = details.get("derivation_basis", target.description)
+        intermediaries = details.get("intermediary_nodes", [])
+
         return EvidenceProvenanceRecord(
             record_id=target.correlation_id,
             item_type="ANOMALY",
             source_file=target.source or "Multi-Source Fusion Engine",
-            case_id=(target.details.get("case_id") if target.details else None),
+            case_id=(details.get("case_id") if details else None),
             timestamp=target.timestamp or target.first_timestamp,
             entity_id=first_ent,
             entity_name=ent_name,
@@ -327,7 +336,11 @@ class EvidenceEngine:
             source_text=f"{target.title}. Description: {target.description}. Evidence: {target.evidence_snippet}",
             highlighted_text=self.generate_highlighted_html(None, None, None, target.evidence_snippet),
             has_provenance=True,
-            metadata=target.details or {}
+            provenance_nature=prov_nature,
+            source_domain=src_domain,
+            derivation_basis=deriv_basis,
+            intermediary_nodes=intermediaries,
+            metadata=details
         )
 
     # ------------------------------------------------------------------
@@ -358,37 +371,54 @@ class EvidenceEngine:
             return self.create_unavailable_record(clean_evid, item_type="TIMELINE_EVENT", entity_id=entity_id)
 
         first_ent = target_event.entity_ids[0] if target_event.entity_ids else (entity_id or "")
-        tgt_ent = target_event.entity_ids[1] if len(target_event.entity_ids) > 1 else None
         node = self.graph_engine.get_node(first_ent)
         ent_name = node.name if node else first_ent
-        case_id = target_event.related_case_ids[0] if target_event.related_case_ids else None
-        snippet = target_event.metadata.get("evidence_snippet") or target_event.description
+
+        case_id = (
+            target_event.related_case_ids[0]
+            if getattr(target_event, "related_case_ids", None)
+            else (target_event.metadata.get("case_id") if target_event.metadata else None)
+        )
+        ts_val = (
+            target_event.timestamp.isoformat()
+            if hasattr(target_event.timestamp, "isoformat")
+            else str(target_event.timestamp)
+        )
+        rel_val = (
+            target_event.event_type.value
+            if hasattr(target_event.event_type, "value")
+            else str(target_event.event_type)
+        )
+
+        evidence_text = (
+            target_event.metadata.get("evidence_snippet")
+            or target_event.metadata.get("evidence")
+            or target_event.description
+        )
 
         return EvidenceProvenanceRecord(
             record_id=target_event.event_id,
             item_type="TIMELINE_EVENT",
             source_file=target_event.source,
             case_id=case_id,
-            timestamp=target_event.timestamp.isoformat() if hasattr(target_event.timestamp, "isoformat") else str(target_event.timestamp),
+            timestamp=ts_val,
             entity_id=first_ent,
             entity_name=ent_name,
-            relationship=target_event.event_type.value if hasattr(target_event.event_type, "value") else str(target_event.event_type),
-            target_entity_id=tgt_ent,
-            confidence=0.95,
-            file_hash=None,
-            char_start=None,
-            char_end=None,
-            evidence_snippet=snippet,
-            source_text=f"[{target_event.timestamp}] {target_event.description}. Evidence: {snippet}",
-            highlighted_text=self.generate_highlighted_html(None, None, None, snippet),
+            relationship=rel_val,
+            confidence=float((target_event.metadata or {}).get("confidence", 0.95)),
+            evidence_snippet=evidence_text,
+            source_text=f"{target_event.title}: {target_event.description}",
+            highlighted_text=self.generate_highlighted_html(None, None, None, evidence_text),
             has_provenance=True,
-            metadata=target_event.metadata
+            provenance_nature="DIRECT_EVIDENCE",
+            source_domain=rel_val,
+            metadata=target_event.metadata or {}
         )
 
     # ------------------------------------------------------------------
-    # 6. General Lookup Router
+    # 6. Unified Evidence Resolver
     # ------------------------------------------------------------------
-    def lookup_evidence(
+    def resolve_evidence(
         self,
         identifier: str,
         item_type: Optional[str] = None,
@@ -397,6 +427,10 @@ class EvidenceEngine:
         target: Optional[str] = None,
         relationship: Optional[str] = None
     ) -> EvidenceLookupResponse:
+        """
+        Main query entrypoint for the Evidence Viewer.
+        Directs query to the specialized provenance resolver.
+        """
         clean_id = (identifier or "").strip()
         resolved_type = (item_type or "").upper().strip()
 
@@ -408,7 +442,7 @@ class EvidenceEngine:
             primary_record = self.get_edge_evidence(edge_id=clean_id, source_id=source, target_id=target, relationship=relationship)
         elif resolved_type == "RISK_FACTOR" or clean_id.startswith("FAC_"):
             primary_record = self.get_risk_factor_evidence(clean_id, entity_id=entity_id)
-        elif resolved_type in ("ANOMALY", "CORRELATION") or clean_id.startswith(("XDOM_", "ANOM_")):
+        elif resolved_type in ("ANOMALY", "CORRELATION", "HIDDEN_LINK") or clean_id.startswith(("CORR_", "XDOM_", "ANOM_")):
             primary_record = self.get_anomaly_evidence(clean_id, entity_id=entity_id)
         elif resolved_type in ("TIMELINE", "TIMELINE_EVENT") or clean_id.startswith(("EV_", "TL_")):
             primary_record = self.get_timeline_event_evidence(clean_id, entity_id=entity_id)
@@ -454,6 +488,9 @@ class EvidenceEngine:
             query_type=resolved_type or primary_record.item_type,
             has_evidence=primary_record.has_provenance
         )
+
+    # Alias for backward compatibility
+    lookup_evidence = resolve_evidence
 
     # ------------------------------------------------------------------
     # 7. Related Evidence Retrieval

@@ -577,6 +577,423 @@ class CrossDomainFusionEngine:
         return correlations
 
     # -----------------------------------------------------------------------
+    # 6. Hidden Link Discovery: Shared Phone Numbers
+    # -----------------------------------------------------------------------
+    def detect_shared_phone_correlations(self) -> List[CrossDomainCorrelationItem]:
+        """
+        Identify distinct subjects who share or operate the same telephone identifier.
+        """
+        all_nodes = self.graph.get_all_nodes()
+        phone_nodes = [
+            n for n in all_nodes
+            if (n.label.value if hasattr(n.label, "value") else str(n.label)) in ("PHONE", NodeType.PHONE.value)
+            or n.id.startswith("PHONE_")
+        ]
+
+        correlations: List[CrossDomainCorrelationItem] = []
+        c_idx = 1
+        now_iso = datetime.now().isoformat()
+
+        for p_node in phone_nodes:
+            nbrs = self.graph.get_neighbors(p_node.id, depth=1)
+            linked_persons = [
+                n for n in nbrs.get("nodes", [])
+                if n.id != p_node.id
+                and ((n.label.value if hasattr(n.label, "value") else str(n.label)) in ("PERSON", NodeType.PERSON.value) or n.id.startswith("PERSON_"))
+            ]
+
+            if len(linked_persons) >= 2:
+                phone_num = p_node.properties.get("phone_number") or p_node.name or p_node.id
+                p_names = [p.name for p in linked_persons]
+                p_ids = [p.id for p in linked_persons]
+
+                snippet = (
+                    f"Telephony record documents shared phone {phone_num} ({p_node.id}) "
+                    f"associated with {len(linked_persons)} distinct subjects: {', '.join(p_names)}."
+                )
+
+                correlations.append(
+                    CrossDomainCorrelationItem(
+                        correlation_id=f"CORR_SHARED_PHONE_{c_idx}",
+                        correlation_type="SHARED_PHONE",
+                        signal_type="Hidden Link: Shared Phone Lead",
+                        severity="HIGH",
+                        title=f"Potential Connection: Shared Telephony Identifier ({phone_num})",
+                        description=(
+                            f"Investigative lead: Shared telephony identifier {phone_num} links "
+                            f"{len(linked_persons)} subjects ({', '.join(p_names[:3])})."
+                        ),
+                        entities_involved=[p_node.id] + p_ids,
+                        time_window_minutes=None,
+                        first_timestamp=now_iso,
+                        second_timestamp=None,
+                        timestamp=now_iso,
+                        source="CDR Telephony Logs · Knowledge Graph",
+                        evidence_channels=["CDR_TELEPHONY", "KNOWLEDGE_GRAPH"],
+                        confidence_score=0.94,
+                        confidence=0.94,
+                        evidence_snippet=snippet,
+                        graph_relationship="SHARED_PHONE",
+                        timeline_link={
+                            "entity_id": p_ids[0],
+                            "event_type": "HIDDEN_LINK",
+                            "phone_number": phone_num,
+                        },
+                        source_evidence_link={
+                            "entity_id": p_node.id,
+                            "channel": "CDR_TELEPHONY",
+                        },
+                        details={
+                            "provenance_nature": "INFERRED_CONNECTION",
+                            "derivation_basis": f"Shared phone identifier {phone_num} observed across {len(linked_persons)} linked subjects",
+                            "intermediary_nodes": [p_node.id],
+                            "source_domain": "CDR_TELEPHONY",
+                            "phone_number": phone_num,
+                            "subjects": p_names,
+                        },
+                        recommended_action="Cross-reference subscriber CDR call logs and SIM registration records.",
+                    )
+                )
+                c_idx += 1
+
+        return correlations
+
+    # -----------------------------------------------------------------------
+    # 7. Hidden Link Discovery: Shared Bank Accounts
+    # -----------------------------------------------------------------------
+    def detect_shared_account_correlations(self) -> List[CrossDomainCorrelationItem]:
+        """
+        Identify distinct subjects connected to or transacting through a shared bank account.
+        """
+        all_nodes = self.graph.get_all_nodes()
+        acc_nodes = [
+            n for n in all_nodes
+            if (n.label.value if hasattr(n.label, "value") else str(n.label)) in ("BANK_ACCOUNT", "BANKACCOUNT", NodeType.BANK_ACCOUNT.value)
+            or n.id.startswith("ACC_")
+        ]
+
+        correlations: List[CrossDomainCorrelationItem] = []
+        c_idx = 1
+        now_iso = datetime.now().isoformat()
+
+        for a_node in acc_nodes:
+            nbrs = self.graph.get_neighbors(a_node.id, depth=1)
+            linked_persons = [
+                n for n in nbrs.get("nodes", [])
+                if n.id != a_node.id
+                and ((n.label.value if hasattr(n.label, "value") else str(n.label)) in ("PERSON", NodeType.PERSON.value) or n.id.startswith("PERSON_"))
+            ]
+
+            if len(linked_persons) >= 2:
+                acc_num = a_node.properties.get("account_number") or a_node.name or a_node.id
+                p_names = [p.name for p in linked_persons]
+                p_ids = [p.id for p in linked_persons]
+
+                snippet = (
+                    f"Financial ledger documents shared banking account {acc_num} ({a_node.id}) "
+                    f"utilized across {len(linked_persons)} subjects: {', '.join(p_names)}."
+                )
+
+                correlations.append(
+                    CrossDomainCorrelationItem(
+                        correlation_id=f"CORR_SHARED_ACC_{c_idx}",
+                        correlation_type="SHARED_ACCOUNT",
+                        signal_type="Hidden Link: Shared Bank Account Lead",
+                        severity="CRITICAL",
+                        title=f"Potential Connection: Common Banking Identifier ({acc_num})",
+                        description=(
+                            f"Investigative lead: Shared financial account {acc_num} links "
+                            f"{len(linked_persons)} subjects ({', '.join(p_names[:3])})."
+                        ),
+                        entities_involved=[a_node.id] + p_ids,
+                        time_window_minutes=None,
+                        first_timestamp=now_iso,
+                        second_timestamp=None,
+                        timestamp=now_iso,
+                        source="Bank Ledger · Financial Analytics",
+                        evidence_channels=["BANK_LEDGER", "KNOWLEDGE_GRAPH"],
+                        confidence_score=0.96,
+                        confidence=0.96,
+                        evidence_snippet=snippet,
+                        graph_relationship="SHARED_ACCOUNT",
+                        timeline_link={
+                            "entity_id": p_ids[0],
+                            "event_type": "HIDDEN_LINK",
+                            "account_number": acc_num,
+                        },
+                        source_evidence_link={
+                            "entity_id": a_node.id,
+                            "channel": "BANK_LEDGER",
+                        },
+                        details={
+                            "provenance_nature": "INFERRED_CONNECTION",
+                            "derivation_basis": f"Common bank account {acc_num} observed across {len(linked_persons)} subjects",
+                            "intermediary_nodes": [a_node.id],
+                            "source_domain": "FINANCIAL",
+                            "account_number": acc_num,
+                            "subjects": p_names,
+                        },
+                        recommended_action="Audit KYC account authorization records and transaction counterparties.",
+                    )
+                )
+                c_idx += 1
+
+        return correlations
+
+    # -----------------------------------------------------------------------
+    # 8. Hidden Link Discovery: Shared Vehicles / License Plates
+    # -----------------------------------------------------------------------
+    def detect_shared_vehicle_correlations(self) -> List[CrossDomainCorrelationItem]:
+        """
+        Identify distinct subjects associated with the same vehicle registration plate.
+        """
+        all_nodes = self.graph.get_all_nodes()
+        veh_nodes = [
+            n for n in all_nodes
+            if (n.label.value if hasattr(n.label, "value") else str(n.label)) in ("VEHICLE", NodeType.VEHICLE.value)
+            or n.id.startswith("VEH_")
+        ]
+
+        correlations: List[CrossDomainCorrelationItem] = []
+        c_idx = 1
+        now_iso = datetime.now().isoformat()
+
+        for v_node in veh_nodes:
+            nbrs = self.graph.get_neighbors(v_node.id, depth=1)
+            linked_persons = [
+                n for n in nbrs.get("nodes", [])
+                if n.id != v_node.id
+                and ((n.label.value if hasattr(n.label, "value") else str(n.label)) in ("PERSON", NodeType.PERSON.value) or n.id.startswith("PERSON_"))
+            ]
+
+            if len(linked_persons) >= 2:
+                plate = v_node.properties.get("registration") or v_node.name or v_node.id
+                p_names = [p.name for p in linked_persons]
+                p_ids = [p.id for p in linked_persons]
+
+                snippet = (
+                    f"Police case records document shared vehicle {plate} ({v_node.id}) "
+                    f"associated with {len(linked_persons)} distinct subjects: {', '.join(p_names)}."
+                )
+
+                correlations.append(
+                    CrossDomainCorrelationItem(
+                        correlation_id=f"CORR_SHARED_VEH_{c_idx}",
+                        correlation_type="SHARED_VEHICLE",
+                        signal_type="Hidden Link: Shared Vehicle Lead",
+                        severity="HIGH",
+                        title=f"Potential Connection: Shared Vehicle Registration ({plate})",
+                        description=(
+                            f"Investigative lead: Vehicle registration {plate} associated with "
+                            f"{len(linked_persons)} subjects ({', '.join(p_names[:3])})."
+                        ),
+                        entities_involved=[v_node.id] + p_ids,
+                        time_window_minutes=None,
+                        first_timestamp=now_iso,
+                        second_timestamp=None,
+                        timestamp=now_iso,
+                        source="Police FIR Records · Vehicle Registry",
+                        evidence_channels=["POLICE_FIR_REGISTRY", "KNOWLEDGE_GRAPH"],
+                        confidence_score=0.93,
+                        confidence=0.93,
+                        evidence_snippet=snippet,
+                        graph_relationship="SHARED_VEHICLE",
+                        timeline_link={
+                            "entity_id": p_ids[0],
+                            "event_type": "HIDDEN_LINK",
+                            "vehicle": plate,
+                        },
+                        source_evidence_link={
+                            "entity_id": v_node.id,
+                            "channel": "POLICE_FIR_REGISTRY",
+                        },
+                        details={
+                            "provenance_nature": "INFERRED_CONNECTION",
+                            "derivation_basis": f"Vehicle registration {plate} linked to {len(linked_persons)} subjects",
+                            "intermediary_nodes": [v_node.id],
+                            "source_domain": "FIR",
+                            "registration": plate,
+                            "subjects": p_names,
+                        },
+                        recommended_action="Verify RTO vehicle ownership transfer and toll-plaza surveillance logs.",
+                    )
+                )
+                c_idx += 1
+
+        return correlations
+
+    # -----------------------------------------------------------------------
+    # 9. Hidden Link Discovery: Cross-Case Associations
+    # -----------------------------------------------------------------------
+    def detect_cross_case_link_correlations(self) -> List[CrossDomainCorrelationItem]:
+        """
+        Identify entities (persons, vehicles, phones, accounts) that appear across 2 or more distinct Case / FIR nodes.
+        """
+        all_nodes = self.graph.get_all_nodes()
+        all_edges = self.graph.get_all_edges()
+
+        # Map entity -> set of connected case nodes
+        entity_cases: Dict[str, Set[str]] = {}
+        for e in all_edges:
+            src_node = self.graph.get_node(e.source)
+            tgt_node = self.graph.get_node(e.target)
+            if not src_node or not tgt_node:
+                continue
+
+            t_lbl = tgt_node.label.value if hasattr(tgt_node.label, "value") else str(tgt_node.label)
+            s_lbl = src_node.label.value if hasattr(src_node.label, "value") else str(src_node.label)
+
+            if t_lbl in ("CASE", NodeType.CASE.value) or tgt_node.id.startswith("CASE_"):
+                entity_cases.setdefault(e.source, set()).add(tgt_node.id)
+            if s_lbl in ("CASE", NodeType.CASE.value) or src_node.id.startswith("CASE_"):
+                entity_cases.setdefault(e.target, set()).add(src_node.id)
+
+        correlations: List[CrossDomainCorrelationItem] = []
+        c_idx = 1
+        now_iso = datetime.now().isoformat()
+
+        for ent_id, cases in entity_cases.items():
+            if len(cases) >= 2:
+                node = self.graph.get_node(ent_id)
+                ent_name = node.name if node else ent_id
+                case_names = []
+                for cid in sorted(list(cases)):
+                    cn = self.graph.get_node(cid)
+                    case_names.append(cn.name if cn else cid)
+
+                snippet = (
+                    f"Police FIR registry documents multi-case co-involvement: Entity '{ent_name}' ({ent_id}) is linked "
+                    f"across {len(cases)} distinct FIR/Case filings: {', '.join(case_names)}."
+                )
+
+                correlations.append(
+                    CrossDomainCorrelationItem(
+                        correlation_id=f"CORR_CROSS_CASE_{c_idx}",
+                        correlation_type="CROSS_CASE_LINK",
+                        signal_type="Hidden Link: Cross-Case Association",
+                        severity="CRITICAL",
+                        title=f"Cross-Case Link: Multi-Case Co-Occurrence ({ent_name})",
+                        description=(
+                            f"Observed relationship: Entity '{ent_name}' is linked across multiple "
+                            f"independent case records: {', '.join(case_names[:3])}."
+                        ),
+                        entities_involved=[ent_id] + list(cases),
+                        time_window_minutes=None,
+                        first_timestamp=now_iso,
+                        second_timestamp=None,
+                        timestamp=now_iso,
+                        source="Police FIR Registry · Knowledge Graph",
+                        evidence_channels=["POLICE_FIR_REGISTRY", "KNOWLEDGE_GRAPH"],
+                        confidence_score=0.98,
+                        confidence=0.98,
+                        evidence_snippet=snippet,
+                        graph_relationship="CROSS_CASE_LINK",
+                        timeline_link={
+                            "entity_id": ent_id,
+                            "event_type": "CASE",
+                        },
+                        source_evidence_link={
+                            "entity_id": ent_id,
+                            "channel": "POLICE_FIR_REGISTRY",
+                        },
+                        details={
+                            "provenance_nature": "DIRECT_EVIDENCE",
+                            "derivation_basis": f"Direct co-occurrence of {ent_name} across cases {', '.join(case_names)}",
+                            "source_domain": "FIR",
+                            "case_ids": list(cases),
+                            "case_names": case_names,
+                        },
+                        recommended_action="Consolidate cross-case investigation briefs and coordinate with respective IOs.",
+                    )
+                )
+                c_idx += 1
+
+        return correlations
+
+    # -----------------------------------------------------------------------
+    # 10. Hidden Link Discovery: Intermediary Bridge Nodes
+    # -----------------------------------------------------------------------
+    def detect_intermediary_bridge_correlations(self) -> List[CrossDomainCorrelationItem]:
+        """
+        Identify bridge entities connecting two or more subjects who have no direct edge between them.
+        """
+        all_nodes = self.graph.get_all_nodes()
+        correlations: List[CrossDomainCorrelationItem] = []
+        c_idx = 1
+        now_iso = datetime.now().isoformat()
+
+        for node in all_nodes:
+            lbl = node.label.value if hasattr(node.label, "value") else str(node.label)
+            if lbl in ("CASE", NodeType.CASE.value) or node.id.startswith("CASE_"):
+                continue
+
+            nbrs = self.graph.get_neighbors(node.id, depth=1)
+            connected_persons = [
+                n for n in nbrs.get("nodes", [])
+                if n.id != node.id
+                and ((n.label.value if hasattr(n.label, "value") else str(n.label)) in ("PERSON", NodeType.PERSON.value) or n.id.startswith("PERSON_"))
+            ]
+
+            if len(connected_persons) >= 2:
+                # Check if there is an unlinked pair
+                p1, p2 = connected_persons[0], connected_persons[1]
+                edge_direct = self.graph.get_edge_between(p1.id, p2.id) or self.graph.get_edge_between(p2.id, p1.id)
+
+                if not edge_direct:
+                    bridge_name = node.name or node.id
+                    snippet = (
+                        f"Graph topology documents observed relationship: Intermediary entity '{bridge_name}' ({node.id}) "
+                        f"is linked between otherwise unconnected subjects '{p1.name}' and '{p2.name}'."
+                    )
+
+                    correlations.append(
+                        CrossDomainCorrelationItem(
+                            correlation_id=f"CORR_BRIDGE_{c_idx}",
+                            correlation_type="INTERMEDIARY_BRIDGE",
+                            signal_type="Hidden Link: Intermediary Bridge Node",
+                            severity="HIGH",
+                            title=f"Potential Connection: Intermediary Bridge Node ({bridge_name})",
+                            description=(
+                                f"Observed relationship: Intermediary entity '{bridge_name}' is linked as a bridge "
+                                f"connecting '{p1.name}' and '{p2.name}' without a direct connection."
+                            ),
+                            entities_involved=[node.id, p1.id, p2.id],
+                            time_window_minutes=None,
+                            first_timestamp=now_iso,
+                            second_timestamp=None,
+                            timestamp=now_iso,
+                            source="Knowledge Graph Engine · Topology",
+                            evidence_channels=["KNOWLEDGE_GRAPH"],
+                            confidence_score=0.91,
+                            confidence=0.91,
+                            evidence_snippet=snippet,
+                            graph_relationship="INTERMEDIARY_BRIDGE",
+                            timeline_link={
+                                "entity_id": node.id,
+                                "event_type": "GRAPH",
+                            },
+                            source_evidence_link={
+                                "entity_id": node.id,
+                                "channel": "KNOWLEDGE_GRAPH",
+                            },
+                            details={
+                                "provenance_nature": "INFERRED_CONNECTION",
+                                "derivation_basis": f"2-hop topological bridge through {bridge_name} between {p1.name} and {p2.name}",
+                                "intermediary_nodes": [node.id],
+                                "source_domain": "CROSS_DOMAIN",
+                                "bridge_node": node.id,
+                                "bridge_name": bridge_name,
+                                "subject_1": p1.name,
+                                "subject_2": p2.name,
+                            },
+                            recommended_action="Examine financial flows and communication logs passing through this intermediary.",
+                        )
+                    )
+                    c_idx += 1
+
+        return correlations
+
+    # -----------------------------------------------------------------------
     # System-Wide & Target-Specific Retrieval
     # -----------------------------------------------------------------------
 
@@ -587,8 +1004,13 @@ class CrossDomainFusionEngine:
         firs = self.detect_fir_case_correlations()
         faces = self.detect_biometric_face_correlations()
         topos = self.detect_graph_topology_correlations()
+        shared_phones = self.detect_shared_phone_correlations()
+        shared_accs = self.detect_shared_account_correlations()
+        shared_vehs = self.detect_shared_vehicle_correlations()
+        cross_cases = self.detect_cross_case_link_correlations()
+        bridges = self.detect_intermediary_bridge_correlations()
 
-        all_corrs = c2t + coloc + firs + faces + topos
+        all_corrs = c2t + coloc + firs + faces + topos + shared_phones + shared_accs + shared_vehs + cross_cases + bridges
 
         crit_count = sum(1 for c in all_corrs if c.severity == "CRITICAL")
         high_count = sum(1 for c in all_corrs if c.severity in ("HIGH", "CRITICAL"))
