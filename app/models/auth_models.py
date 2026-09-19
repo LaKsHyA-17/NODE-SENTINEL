@@ -31,6 +31,7 @@ class Permission(str, Enum):
     INGEST_DATA = "INGEST_DATA"
     MANAGE_USERS = "MANAGE_USERS"
     VIEW_AUDIT_LOG = "VIEW_AUDIT_LOG"
+    VIEW_SENSITIVE_DATA = "VIEW_SENSITIVE_DATA"
 
     # Convenient Aliases
     USER_MANAGEMENT = "MANAGE_USERS"
@@ -57,6 +58,7 @@ ROLE_PERMISSIONS: Dict[Role, List[Permission]] = {
         Permission.INGEST_DATA,
         Permission.MANAGE_USERS,
         Permission.VIEW_AUDIT_LOG,
+        Permission.VIEW_SENSITIVE_DATA,
     ],
     Role.INVESTIGATOR: [
         Permission.VIEW_GRAPH,
@@ -69,6 +71,7 @@ ROLE_PERMISSIONS: Dict[Role, List[Permission]] = {
         Permission.AI_ASSISTANT,
         Permission.GENERATE_REPORT,
         Permission.INGEST_DATA,
+        Permission.VIEW_SENSITIVE_DATA,
     ],
     Role.ANALYST: [
         Permission.VIEW_GRAPH,

@@ -7,6 +7,16 @@ services:
     region: oregon
     plan: free
     envVars:
+      - key: APP_ENV
+        value: production
+      - key: DEMO_MODE
+        value: "false"
+      - key: REQUIRE_AUTH
+        value: "true"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: https://node-sentinel.onrender.com
       - key: KEEP_ALIVE_INTERVAL_SECONDS
         value: "600"
       - key: OCR_ENABLED

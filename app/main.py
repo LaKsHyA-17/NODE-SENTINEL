@@ -1,7 +1,7 @@
 import os
 import asyncio
 import logging
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -29,6 +29,8 @@ from app.core.graph_engine import get_graph_engine
 from app.core.face_storage import get_face_storage
 from app.core.demo_face_data import seed_demo_face_database
 from app.api.routes_ingest import ingest_sample_batch_data
+from app.core.auth_service import enforce_permission
+from app.models.auth_models import Permission
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -47,20 +49,22 @@ async def lifespan(fastapi_app: FastAPI):
     )
     graph = get_graph_engine()
     nodes = graph.get_all_nodes()
-    if len(nodes) == 0:
+    if len(nodes) == 0 and settings.DEMO_MODE:
         logger.info("Graph is empty on startup. Auto-ingesting synthetic sample dataset...")
         try:
             res = load_dataset_by_name(graph, "syndicate_network.json")
             logger.info(f"Auto-ingested sample data: {res['total_graph_nodes']} nodes, {res['total_graph_edges']} edges created.")
         except Exception as e:
             logger.error(f"Failed to auto-ingest sample dataset: {e}")
-    else:
+    elif nodes:
         logger.info(f"Graph loaded with {len(nodes)} pre-existing nodes.")
+    else:
+        logger.info("Graph is empty; waiting for authenticated production ingestion.")
 
     # Initialize demo face storage
     try:
         f_storage = get_face_storage()
-        if len(f_storage.list_identities()) == 0:
+        if settings.DEMO_MODE and len(f_storage.list_identities()) == 0:
             seed_demo_face_database(f_storage)
             logger.info(f"Auto-seeded demo face database with {len(f_storage.list_identities())} identities.")
     except Exception as e:
@@ -71,7 +75,7 @@ async def lifespan(fastapi_app: FastAPI):
         from app.core.financial_analytics import get_financial_storage, get_financial_service
         from app.core.financial_parser import FinancialParser
         f_store = get_financial_storage()
-        if len(f_store.get_all_records()) == 0:
+        if settings.DEMO_MODE and len(f_store.get_all_records()) == 0:
             demo_csv_path = os.path.join(settings.BASE_DIR, "sample_data", "demo_financial.csv")
             if os.path.exists(demo_csv_path):
                 with open(demo_csv_path, "rb") as df:
@@ -128,20 +132,20 @@ app.add_middleware(
 app.include_router(auth_router, prefix=settings.API_V1_STR)
 app.include_router(users_router, prefix=settings.API_V1_STR)
 app.include_router(audit_router, prefix=settings.API_V1_STR)
-app.include_router(ingest_router, prefix=settings.API_V1_STR)
-app.include_router(graph_router, prefix=settings.API_V1_STR)
-app.include_router(analytics_router, prefix=settings.API_V1_STR)
-app.include_router(alerts_router, prefix=settings.API_V1_STR)
-app.include_router(search_router, prefix=settings.API_V1_STR)
-app.include_router(search_router, prefix="")  # Support /search as well as /api/search
-app.include_router(cdr_router, prefix=settings.API_V1_STR)
-app.include_router(financial_router, prefix=settings.API_V1_STR)
-app.include_router(timeline_router, prefix=settings.API_V1_STR)
-app.include_router(risk_router, prefix=settings.API_V1_STR)
-app.include_router(assistant_router, prefix=settings.API_V1_STR)
-app.include_router(reports_router, prefix=settings.API_V1_STR)
-app.include_router(cross_domain_router, prefix=settings.API_V1_STR)
-app.include_router(evidence_router, prefix=settings.API_V1_STR)
+app.include_router(ingest_router, prefix=settings.API_V1_STR, dependencies=[Depends(enforce_permission(Permission.INGEST_DATA))])
+app.include_router(graph_router, prefix=settings.API_V1_STR, dependencies=[Depends(enforce_permission(Permission.VIEW_GRAPH))])
+app.include_router(analytics_router, prefix=settings.API_V1_STR, dependencies=[Depends(enforce_permission(Permission.VIEW_GRAPH))])
+app.include_router(alerts_router, prefix=settings.API_V1_STR, dependencies=[Depends(enforce_permission(Permission.RISK_ANALYSIS))])
+app.include_router(search_router, prefix=settings.API_V1_STR, dependencies=[Depends(enforce_permission(Permission.UNIVERSAL_SEARCH))])
+app.include_router(search_router, prefix="", dependencies=[Depends(enforce_permission(Permission.UNIVERSAL_SEARCH))])  # Support /search as well as /api/search
+app.include_router(cdr_router, prefix=settings.API_V1_STR, dependencies=[Depends(enforce_permission(Permission.CDR_ANALYSIS))])
+app.include_router(financial_router, prefix=settings.API_V1_STR, dependencies=[Depends(enforce_permission(Permission.FINANCIAL_ANALYSIS))])
+app.include_router(timeline_router, prefix=settings.API_V1_STR, dependencies=[Depends(enforce_permission(Permission.TIMELINE))])
+app.include_router(risk_router, prefix=settings.API_V1_STR, dependencies=[Depends(enforce_permission(Permission.RISK_ANALYSIS))])
+app.include_router(assistant_router, prefix=settings.API_V1_STR, dependencies=[Depends(enforce_permission(Permission.AI_ASSISTANT))])
+app.include_router(reports_router, prefix=settings.API_V1_STR, dependencies=[Depends(enforce_permission(Permission.GENERATE_REPORT))])
+app.include_router(cross_domain_router, prefix=settings.API_V1_STR, dependencies=[Depends(enforce_permission(Permission.VIEW_GRAPH))])
+app.include_router(evidence_router, prefix=settings.API_V1_STR, dependencies=[Depends(enforce_permission(Permission.VIEW_GRAPH))])
 
 
 # Static Files Setup
@@ -150,7 +154,7 @@ if os.path.exists(static_path):
     app.mount("/static", StaticFiles(directory=static_path), name="static")
 
 sample_data_path = os.path.join(settings.BASE_DIR, "sample_data")
-if os.path.exists(sample_data_path):
+if settings.DEMO_MODE and os.path.exists(sample_data_path):
     app.mount("/sample_data", StaticFiles(directory=sample_data_path), name="sample_data")
 
 
@@ -182,4 +186,3 @@ def serve_dashboard():
     if os.path.exists(index_file):
         return FileResponse(index_file)
     return {"message": "AI Criminal Network Engine API running. Dashboard file not found."}
-

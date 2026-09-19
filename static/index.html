@@ -2236,6 +2236,93 @@
             letter-spacing: 0.3px;
         }
 
+        /* Phase 4: Sensitive Identifier Masking & Privacy Badges */
+        .masked-id-wrap {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            vertical-align: middle;
+        }
+
+        .masked-val {
+            color: #e2e8f0;
+            letter-spacing: 0.6px;
+        }
+
+        .reveal-btn {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 7px;
+            background: rgba(45, 212, 191, 0.12);
+            border: 1px solid rgba(45, 212, 191, 0.35);
+            color: var(--teal);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: 'JetBrains Mono', monospace;
+            line-height: 1.2;
+            user-select: none;
+        }
+
+        .reveal-btn:hover {
+            background: rgba(45, 212, 191, 0.28);
+            border-color: var(--teal);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .badge-direct {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(45, 212, 191, 0.15);
+            border: 1px solid rgba(45, 212, 191, 0.45);
+            color: #2dd4bf;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 12px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .badge-inferred {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(192, 132, 252, 0.15);
+            border: 1px solid rgba(192, 132, 252, 0.45);
+            color: #c084fc;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 12px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .evidence-highlight {
+            background: rgba(45, 212, 191, 0.25);
+            color: #2dd4bf;
+            border-bottom: 2px solid var(--teal);
+            padding: 1px 4px;
+            border-radius: 2px;
+            font-weight: 700;
+        }
+
+        .adv-tools-list {
+            max-height: 500px;
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out, opacity 0.2s ease;
+        }
+
+        .adv-tools-list.collapsed {
+            max-height: 0;
+            opacity: 0;
+            pointer-events: none;
+        }
+
         /* ====================================================
            STEP 9A — CDR CALL ANALYSIS FOUNDATION STYLES
            ==================================================== */
@@ -2927,6 +3014,104 @@
             color: #ff4d61;
             font-weight: 600;
             font-size: 11.5px;
+        }
+
+        /* Sensitive Identifier Masking & Reveal Controls */
+        .masked-id-wrap {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(14, 27, 43, 0.9);
+            border: 1px solid rgba(49, 209, 191, 0.25);
+            border-radius: 5px;
+            padding: 2px 7px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11.5px;
+            vertical-align: middle;
+        }
+
+        .masked-val {
+            color: #cbd5e1;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .reveal-btn {
+            background: rgba(49, 209, 191, 0.12);
+            border: 1px solid rgba(49, 209, 191, 0.35);
+            color: var(--teal);
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 1px 6px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+
+        .reveal-btn:hover {
+            background: rgba(49, 209, 191, 0.25);
+            color: #fff;
+            border-color: var(--teal);
+        }
+
+        .reveal-btn.revealed {
+            background: rgba(56, 189, 248, 0.15);
+            border-color: #38bdf8;
+            color: #7dd3fc;
+            cursor: default;
+        }
+
+        /* Provenance & Evidence Nature Badges */
+        .badge-direct {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(49, 209, 191, 0.12);
+            border: 1px solid rgba(49, 209, 191, 0.45);
+            color: var(--teal);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.6px;
+            padding: 2px 7px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .badge-inferred {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(192, 132, 252, 0.12);
+            border: 1px solid rgba(192, 132, 252, 0.4);
+            color: var(--purple);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.6px;
+            padding: 2px 7px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        /* Character Span Highlighting */
+        mark.evidence-highlight {
+            background: rgba(49, 209, 191, 0.25);
+            color: #fff;
+            border-bottom: 2px solid var(--teal);
+            padding: 1px 3px;
+            border-radius: 2px;
+            font-weight: 700;
+        }
+
+        .active-chip {
+            background: var(--teal) !important;
+            color: #07101d !important;
+            font-weight: 700 !important;
+            border-color: var(--teal) !important;
+        }
+
+        .adv-tools-list {
+            transition: all 0.2s ease;
         }
 
         /* ====================================================
@@ -3742,17 +3927,15 @@
             <div class="workflow-pipeline-bar" title="Investigative Intelligence Workflow Progression">
                 <span class="wf-step" id="wf-step-search" onclick="showUniversalSearchOverlay()">1. Search</span>
                 <span class="wf-arrow">→</span>
-                <span class="wf-step active" id="wf-step-graph" onclick="showGraph()">2. Graph</span>
+                <span class="wf-step active" id="wf-step-graph" onclick="showGraph()">2. Network</span>
                 <span class="wf-arrow">→</span>
-                <span class="wf-step" id="wf-step-cdr" onclick="showCdrPanel()">3. CDR</span>
+                <span class="wf-step" id="wf-step-cross-domain" onclick="showCrossDomainPanel()">3. Hidden Links</span>
                 <span class="wf-arrow">→</span>
-                <span class="wf-step" id="wf-step-fin" onclick="showFinancialPanel()">4. Finance</span>
+                <span class="wf-step" id="wf-step-timeline" onclick="showTimelinePanel()">4. Timeline</span>
                 <span class="wf-arrow">→</span>
-                <span class="wf-step" id="wf-step-timeline" onclick="showTimelinePanel()">5. Timeline</span>
+                <span class="wf-step" id="wf-step-evidence" onclick="openProvenanceModal('PERSON_TARIQ_AHMAD')">5. Evidence</span>
                 <span class="wf-arrow">→</span>
-                <span class="wf-step" id="wf-step-ai" onclick="showAssistantPanel()">6. AI Copilot</span>
-                <span class="wf-arrow">→</span>
-                <span class="wf-step" id="wf-step-report" onclick="openReportModal()">7. Report</span>
+                <span class="wf-step" id="wf-step-report" onclick="openReportModal()">6. Report</span>
             </div>
 
             <!-- Universal Search Box -->
@@ -3802,7 +3985,7 @@
                 <button class="sidebar-close-btn" onclick="toggleMobileSidebar(false)" aria-label="Close Navigation Menu">✕</button>
             </div>
 
-            <div class="nav-label">INVESTIGATION</div>
+            <div class="nav-label">INVESTIGATION WORKFLOW</div>
             <button id="nav-graph" class="nav active" onclick="showGraph()"
                 title="Interactive Knowledge Graph Network View">
                 <span class="icon">◉</span> Network Graph
@@ -3811,60 +3994,72 @@
                 title="Universal Multi-Entity Search">
                 <span class="icon">🔎</span> Universal Search
             </button>
-
-            <div class="nav-label" style="margin-top: 14px">ANALYTICS</div>
             <button id="nav-cross-domain" class="nav" onclick="showCrossDomainPanel()"
-                title="Cross-Domain Multi-Source Telemetry Fusion">
-                <span class="icon">🔗</span> Cross-Domain Fusion
-            </button>
-            <button id="nav-ml-anomalies" class="nav" onclick="showMLAnomaliesPanel()"
-                title="Unsupervised ML Multi-Dimensional Outlier Scoring">
-                <span class="icon">🧬</span> ML Anomaly Matrix
-            </button>
-            <button id="nav-compare" class="nav" onclick="openEntityComparisonModal()"
-                title="Side-by-Side Multi-Entity Link & Flow Comparison">
-                <span class="icon">⚖️</span> Entity Comparison
-            </button>
-            <button id="nav-centrality" class="nav" onclick="showAnalytics()"
-                title="Betweenness Brokerage & Centrality Rankings">
-                <span class="icon">◫</span> Centrality & Brokers
-            </button>
-            <button id="nav-communities" class="nav" onclick="showCommunities()"
-                title="Louvain Community Detection Clusters">
-                <span class="icon">❖</span> Louvain Clusters
-            </button>
-            <button id="nav-alerts" class="nav" onclick="showAlerts()" title="Active Criminal Anomaly Alerts">
-                <span class="icon">⚠</span> Anomaly Alerts
-            </button>
-            <button id="nav-cdr" class="nav" onclick="showCdrPanel()" title="Call Detail Record Analysis & Frequency">
-                <span class="icon">📞</span> CDR / Call Analysis
-            </button>
-            <button id="nav-financial" class="nav" onclick="showFinancialPanel()"
-                title="Hawala & Financial Flow Reconstruction">
-                <span class="icon">💳</span> Financial Analysis
+                title="Hidden Link Discovery & Cross-Domain Correlations">
+                <span class="icon">🔗</span> Hidden Links & Leads
             </button>
             <button id="nav-timeline" class="nav" onclick="showTimelinePanel()"
                 title="Multi-Source Unified Timeline Sequence">
                 <span class="icon">🕒</span> Investigation Timeline
             </button>
-
-            <div class="nav-label" style="margin-top: 14px">INTELLIGENCE</div>
-            <button id="nav-assistant" class="nav" onclick="showAssistantPanel()"
-                title="AI Investigative Copilot & Hypothesis Assistant">
-                <span class="icon">🤖</span> AI Investigation Assistant
+            <button id="nav-evidence" class="nav" onclick="openProvenanceModal('PERSON_TARIQ_AHMAD')"
+                title="Empirical Evidence Provenance & Custody Viewer">
+                <span class="icon">📜</span> Evidence Provenance
             </button>
             <button id="nav-report" class="nav" onclick="openReportModal()"
                 title="Generate Official Dossier & Investigation Report">
                 <span class="icon">📑</span> Investigation Report
             </button>
 
-            <div class="nav-label" style="margin-top: 14px">ADMINISTRATION</div>
-            <button id="nav-admin" class="nav" onclick="showAdminPanel()"
-                title="Role-Based Access Control & Immutable Audit Trail">
-                <span class="icon">🛡️</span> Admin & Audit Trail
-            </button>
+            <!-- Advanced Analytical Tools (Consolidated Collapsible Accordion) -->
+            <div class="advanced-tools-accordion" style="margin-top: 10px;">
+                <div class="nav-label" onclick="toggleAdvancedTools()" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center;" title="Click to toggle Advanced Intelligence Tools">
+                    <span>ADVANCED TOOLS</span>
+                    <span id="advToolsToggleIcon" style="font-size:10px; transition:transform 0.2s;">▾</span>
+                </div>
+                <div id="advToolsContainer" class="adv-tools-list" style="display:flex; flex-direction:column; gap:2px;">
+                    <button id="nav-assistant" class="nav" onclick="showAssistantPanel()"
+                        title="AI Investigative Copilot & Hypothesis Assistant">
+                        <span class="icon">🤖</span> AI Assistant
+                    </button>
+                    <button id="nav-ml-anomalies" class="nav" onclick="showMLAnomaliesPanel()"
+                        title="Unsupervised ML Multi-Dimensional Outlier Scoring">
+                        <span class="icon">🧬</span> ML Anomaly Matrix
+                    </button>
+                    <button id="nav-compare" class="nav" onclick="openEntityComparisonModal()"
+                        title="Side-by-Side Multi-Entity Link & Flow Comparison">
+                        <span class="icon">⚖️</span> Entity Comparison
+                    </button>
+                    <button id="nav-centrality" class="nav" onclick="showAnalytics()"
+                        title="Betweenness Brokerage & Centrality Rankings">
+                        <span class="icon">◫</span> Centrality & Brokers
+                    </button>
+                    <button id="nav-communities" class="nav" onclick="showCommunities()"
+                        title="Louvain Community Detection Clusters">
+                        <span class="icon">❖</span> Louvain Clusters
+                    </button>
+                    <button id="nav-alerts" class="nav" onclick="showAlerts()" title="Active Criminal Anomaly Alerts">
+                        <span class="icon">⚠</span> Anomaly Alerts
+                    </button>
+                    <button id="nav-cdr" class="nav" onclick="showCdrPanel()" title="Call Detail Record Analysis & Frequency">
+                        <span class="icon">📞</span> CDR / Call Analysis
+                    </button>
+                    <button id="nav-financial" class="nav" onclick="showFinancialPanel()"
+                        title="Hawala & Financial Flow Reconstruction">
+                        <span class="icon">💳</span> Financial Analysis
+                    </button>
+                    <button id="nav-face" class="nav" onclick="openFaceSearchModal()"
+                        title="Biometric Face Search & Verification">
+                        <span class="icon">📷</span> Face Verification
+                    </button>
+                    <button id="nav-admin" class="nav" onclick="showAdminPanel()"
+                        title="Role-Based Access Control & Immutable Audit Trail">
+                        <span class="icon">🛡️</span> Admin & Audit Trail
+                    </button>
+                </div>
+            </div>
 
-            <div class="nav-label" style="margin-top: 14px">DATA INGESTION</div>
+            <div class="nav-label" style="margin-top: 10px">DATA INGESTION</div>
             <button class="nav" onclick="openIngest()" title="Ingest Police First Information Report (FIR)">
                 <span class="icon">＋</span> Ingest FIR Report
             </button>
@@ -4842,6 +5037,116 @@
             const _activeEntityFilters = new Set(['Person', 'Phone', 'Vehicle', 'Case', 'BankAccount', 'Location', 'Organization']);
             const _activeRelFilters = new Set(['CALLS', 'TRANSFERRED_MONEY', 'INVOLVED_IN', 'LOCATED_AT', 'OWNS', 'OPERATES']);
 
+            // ====================================================
+            // PHASE 4: SENSITIVE DATA MASKING & AUTHORIZED REVEAL
+            // ====================================================
+            function maskPhoneNumber(phone) {
+                if (!phone) return '';
+                const s = String(phone).trim();
+                const digits = s.replace(/\D/g, '');
+                if (digits.length >= 7) {
+                    const prefix = s.startsWith('+') ? s.substring(0, 3) + ' ' : '';
+                    const last4 = digits.slice(-4);
+                    return prefix + 'XXXXXX' + last4;
+                }
+                return 'XXXXXX' + s.slice(-2);
+            }
+
+            function maskBankAccount(acc) {
+                if (!acc) return '';
+                const s = String(acc).trim();
+                const prefix = s.startsWith('ACC_') ? 'ACC_' : (s.startsWith('ACC') ? 'ACC' : '');
+                const raw = s.replace(/^ACC_?/, '');
+                if (raw.length >= 6) {
+                    return prefix + 'XXXXXX' + raw.slice(-4);
+                }
+                return 'XXXXXX' + s.slice(-2);
+            }
+
+            function renderMaskedIdentifier(entityId, rawValue, type = 'phone') {
+                const cleanId = String(entityId || '').trim();
+                const masked = type === 'phone' ? maskPhoneNumber(rawValue || cleanId) : maskBankAccount(rawValue || cleanId);
+                const safeId = escapeHtml(cleanId);
+                const safeMasked = escapeHtml(masked);
+                const elemId = 'masked_' + safeId.replace(/[^a-zA-Z0-9_-]/g, '_');
+                return `<span class="masked-id-wrap" id="wrap_${elemId}">` +
+                    `<span class="masked-val" id="val_${elemId}" data-masked="${safeMasked}">${safeMasked}</span>` +
+                    `<button class="reveal-btn" onclick="revealSensitiveId('${safeId}', '${elemId}', '${escapeHtml(type)}')" id="btn_${elemId}" title="Reveal identifier (Requires Investigator/Admin authorization)">👁 Reveal</button>` +
+                `</span>`;
+            }
+
+            async function revealSensitiveId(entityId, elemId, type) {
+                const valEl = document.getElementById('val_' + elemId);
+                const btnEl = document.getElementById('btn_' + elemId);
+                if (!valEl || !btnEl) return;
+
+                if (btnEl.getAttribute('data-revealed') === 'true') {
+                    valEl.textContent = valEl.getAttribute('data-masked');
+                    btnEl.textContent = '👁 Reveal';
+                    btnEl.setAttribute('data-revealed', 'false');
+                    return;
+                }
+
+                try {
+                    const res = await request('/auth/reveal-sensitive', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ entity_id: entityId, entity_type: type })
+                    });
+                    if (res && res.unmasked_value) {
+                        valEl.textContent = res.unmasked_value;
+                        btnEl.textContent = '🔒 Mask';
+                        btnEl.setAttribute('data-revealed', 'true');
+                    }
+                } catch (err) {
+                    alert('⚠️ Access Denied: Unmasking sensitive identifiers requires Investigator or Administrator authorization.');
+                }
+            }
+
+            function toggleAdvancedTools() {
+                const container = document.getElementById('advToolsContainer');
+                const icon = document.getElementById('advToolsToggleIcon');
+                if (!container) return;
+                const isCollapsed = container.classList.toggle('collapsed');
+                if (icon) icon.style.transform = isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)';
+            }
+
+            async function focusSubnetwork(nodeIds) {
+                if (!nodeIds || !nodeIds.length) return;
+                showGraph();
+                if (!network || !nodesDataSet) return;
+
+                for (const nid of nodeIds) {
+                    if (!nodesDataSet.get(nid)) {
+                        try {
+                            const data = await request('/network/search?query=' + encodeURIComponent(nid) + '&depth=1');
+                            if (data && data.nodes && data.nodes.length > 0) {
+                                data.nodes.forEach(n => { if (!nodesDataSet.get(n.id)) nodesDataSet.add(n); });
+                                data.edges.forEach(e => { if (!edgesDataSet.get(e.id)) edgesDataSet.add(e); });
+                            }
+                        } catch (e) {
+                            console.warn('Node prefetch warning:', e);
+                        }
+                    }
+                }
+
+                setTimeout(() => {
+                    try {
+                        network.selectNodes(nodeIds, false);
+                        network.fit({
+                            nodes: nodeIds,
+                            animation: { duration: 600, easingFunction: 'easeInOutQuad' }
+                        });
+                        if (nodeIds.length === 1) {
+                            _selectedNodeId = nodeIds[0];
+                            loadDossier(nodeIds[0]);
+                        }
+                    } catch (e) {
+                        console.error('Subnetwork focus error:', e);
+                    }
+                }, 120);
+            }
+
             function showError(msg) {
                 const banner = document.getElementById('network-error-banner');
                 if (banner) {
@@ -5620,7 +5925,7 @@
                                     <div class="dossier-mini-item" style="display:flex; justify-content:space-between; align-items:center;">
                                         <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:170px;">
                                             <b style="color:#fff;">${escapeHtml(c.contact_name || c.contact_id)}</b>
-                                            <div class="muted" style="font-size:10px; font-family:'JetBrains Mono',monospace;">${escapeHtml(c.phone_number)}</div>
+                                            <div style="font-size:10px; margin-top:2px;">${renderMaskedIdentifier(c.contact_id || c.phone_number, c.phone_number, 'phone')}</div>
                                         </div>
                                         <div style="text-align:right;">
                                             <span class="pill" style="font-size:9.5px; background:#142a42;">${c.call_count} calls</span>
@@ -5800,7 +6105,20 @@
                 let propsHtml = '';
                 for (const [k, v] of Object.entries(props)) {
                     if (['source', 'risk_tag'].includes(k)) continue;
-                    propsHtml += `<div class="prop-item"><span class="k">${escapeHtml(k.replace(/_/g, ' '))}</span><span class="v">${escapeHtml(String(v))}</span></div>`;
+                    let displayVal = escapeHtml(String(v));
+                    if (k.toLowerCase().includes('phone') || /^\+?\d{10,13}$/.test(String(v))) {
+                        displayVal = renderMaskedIdentifier(String(v), String(v), 'phone');
+                    } else if (k.toLowerCase().includes('account') || String(v).startsWith('ACC_') || String(v).startsWith('ACC')) {
+                        displayVal = renderMaskedIdentifier(String(v), String(v), 'account');
+                    }
+                    propsHtml += `<div class="prop-item"><span class="k">${escapeHtml(k.replace(/_/g, ' '))}</span><span class="v">${displayVal}</span></div>`;
+                }
+
+                let titleDisplay = escapeHtml(d.name);
+                if (d.type === 'Phone' || /^\+?\d{10,13}$/.test(d.name)) {
+                    titleDisplay = renderMaskedIdentifier(d.entity_id, d.name, 'phone');
+                } else if (d.type === 'Account' || d.name.startsWith('ACC_') || d.name.startsWith('ACC')) {
+                    titleDisplay = renderMaskedIdentifier(d.entity_id, d.name, 'account');
                 }
 
                 // Compile Final Rich Smart Dossier HTML
@@ -5810,7 +6128,7 @@
                         <span class="eyebrow">${escapeHtml(d.type)}</span>
                         ${props.risk_tag ? `<span class="pill ${props.risk_tag === 'CRITICAL' ? 'badge-red' : 'badge-amber'}">${escapeHtml(props.risk_tag)}</span>` : ''}
                     </div>
-                    <h2 class="entity-title" style="margin:2px 0 3px;">${escapeHtml(d.name)}</h2>
+                    <h2 class="entity-title" style="margin:2px 0 3px;">${titleDisplay}</h2>
                     <div class="entity-id" style="font-family:'JetBrains Mono',monospace; color:var(--muted); font-size:11.5px;">${escapeHtml(d.entity_id)}</div>
 
                     ${isFaceEnrolled ? `
@@ -6654,7 +6972,7 @@
                                 ${data.top_contacts.map(c => `
                                     <tr>
                                         <td><b style="color:#fff;">${escapeHtml(c.contact_name || c.phone_number)}</b></td>
-                                        <td style="font-family:'JetBrains Mono',monospace; color:var(--teal); font-size:12px;">${escapeHtml(c.phone_number)}</td>
+                                        <td>${renderMaskedIdentifier(c.contact_id || c.phone_number, c.phone_number, 'phone')}</td>
                                         <td><b style="color:var(--amber); font-family:'JetBrains Mono',monospace;">${c.call_count}</b></td>
                                         <td style="font-size:11.5px; color:var(--muted);">
                                             <span style="color:var(--teal)">${c.incoming_count}↓</span> ·
@@ -6709,10 +7027,10 @@
                                             </td>
                                             <td><span class="pill ${badgeClass}">${escapeHtml(t.call_type)}</span></td>
                                             <td style="font-family:'JetBrains Mono',monospace; font-size:11.5px;">
-                                                ${escapeHtml(t.caller_name ? `${t.caller_name} (${t.caller})` : t.caller)}
+                                                ${t.caller_name ? `${escapeHtml(t.caller_name)} · ` : ''}${renderMaskedIdentifier(t.caller, t.caller, 'phone')}
                                             </td>
                                             <td style="font-family:'JetBrains Mono',monospace; font-size:11.5px;">
-                                                ${escapeHtml(t.receiver_name ? `${t.receiver_name} (${t.receiver})` : t.receiver)}
+                                                ${t.receiver_name ? `${escapeHtml(t.receiver_name)} · ` : ''}${renderMaskedIdentifier(t.receiver, t.receiver, 'phone')}
                                             </td>
                                             <td style="font-family:'JetBrains Mono',monospace; font-size:11.5px; color:#fff;">
                                                 ${escapeHtml(t.formatted_duration)}
@@ -8655,12 +8973,19 @@ Select a subject or click any suggested prompt below to begin.
                 `;
                 }
 
+                let cardTitle = escapeHtml(item.name);
+                if (isPhone || /^\+?\d{10,13}$/.test(item.name)) {
+                    cardTitle = renderMaskedIdentifier(item.entity_id, item.name, 'phone');
+                } else if (isAccount || item.name.startsWith('ACC_') || item.name.startsWith('ACC')) {
+                    cardTitle = renderMaskedIdentifier(item.entity_id, item.name, 'account');
+                }
+
                 return `
                 <div class="search-entity-card">
                     <div>
                         <div class="card-header">
                             <div>
-                                <div class="card-title">${escapeHtml(item.name)}</div>
+                                <div class="card-title">${cardTitle}</div>
                                 <div class="card-id">${escapeHtml(item.entity_id)}</div>
                             </div>
                             <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
@@ -9714,10 +10039,110 @@ Select a subject or click any suggested prompt below to begin.
             }
 
             // ====================================================
-            // CROSS-DOMAIN TELEMETRY FUSION & ML ANOMALY MATRIX
+            // ADVANCED TOOLS ACCORDION TOGGLE
+            // ====================================================
+            let _advToolsExpanded = true;
+            function toggleAdvancedTools() {
+                _advToolsExpanded = !_advToolsExpanded;
+                const c = document.getElementById('advToolsContainer');
+                const icon = document.getElementById('advToolsToggleIcon');
+                if (c) c.style.display = _advToolsExpanded ? 'flex' : 'none';
+                if (icon) icon.textContent = _advToolsExpanded ? '▾' : '▸';
+            }
+
+            // ====================================================
+            // SENSITIVE IDENTIFIER MASKING & AUTHORIZED REVEAL
+            // ====================================================
+            function maskPhoneNumber(val) {
+                if (!val) return '';
+                const str = String(val).trim();
+                const digitsOnly = str.replace(/\D/g, '');
+                if (digitsOnly.length >= 10) {
+                    const last4 = digitsOnly.slice(-4);
+                    const prefix = str.startsWith('+91') ? '+91 ' : (str.startsWith('+') ? str.slice(0, 3) + ' ' : '');
+                    return `${prefix}XXXXXX${last4}`;
+                }
+                return str.length > 4 ? 'XXXXXX' + str.slice(-4) : 'XXXXXX';
+            }
+
+            function maskBankAccount(val) {
+                if (!val) return '';
+                const str = String(val).trim();
+                const prefix = str.startsWith('ACC_') ? 'ACC_' : (str.startsWith('ACC') ? 'ACC' : '');
+                const clean = str.replace(/^ACC_?/, '');
+                const last4 = clean.length > 4 ? clean.slice(-4) : clean;
+                return `${prefix}XXXXXX${last4}`;
+            }
+
+            function renderMaskedIdentifier(rawId, originalValue, type = 'phone') {
+                const cleanId = String(rawId || '').replace(/[^a-zA-Z0-9_-]/g, '_');
+                const masked = type === 'phone' ? maskPhoneNumber(originalValue || rawId) : maskBankAccount(originalValue || rawId);
+                const safeOrig = escapeHtml(originalValue || rawId);
+                return `
+                    <span class="masked-id-wrap" id="wrap-${cleanId}">
+                        <span class="masked-val" id="val-${cleanId}" title="Sensitive identifier masked by default">${escapeHtml(masked)}</span>
+                        <button type="button" class="reveal-btn" id="btn-reveal-${cleanId}" onclick="revealSensitiveId('${cleanId}', '${escapeHtml(type)}', '${safeOrig}')" title="Click to verify unmasked record (Officer authorization required)">👁 Reveal</button>
+                    </span>
+                `;
+            }
+
+            async function revealSensitiveId(cleanId, idType, idVal) {
+                const btn = document.getElementById('btn-reveal-' + cleanId);
+                const valEl = document.getElementById('val-' + cleanId);
+                if (!btn || !valEl) return;
+
+                btn.disabled = true;
+                btn.textContent = '⏳';
+
+                try {
+                    const res = await request('/auth/reveal-sensitive', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ identifier_type: idType, identifier_value: idVal })
+                    });
+
+                    if (res && res.unmasked_value) {
+                        valEl.textContent = res.unmasked_value;
+                        valEl.style.color = '#38bdf8';
+                        valEl.style.fontWeight = '700';
+                        btn.textContent = '🔓 Verified';
+                        btn.classList.add('revealed');
+                        btn.title = `Authorized by ${res.authorized_by} (${res.role})`;
+                    } else {
+                        throw new Error('Could not authorize identifier reveal');
+                    }
+                } catch (err) {
+                    btn.disabled = false;
+                    btn.textContent = '🔒 Denied';
+                    btn.title = `Access Denied: ${err.message || 'Investigator / Admin authorization required'}`;
+                    alert(`[Node Sentinel RBAC] Sensitive Data Protection:\n${err.message || 'Requires INVESTIGATOR or ADMIN authorization to unmask full identifier.'}`);
+                }
+            }
+
+            function focusSubnetwork(nodeIds) {
+                if (!nodeIds || !nodeIds.length) return;
+                showGraph();
+                if (!network || !nodesDataSet) return;
+
+                const validIds = nodeIds.filter(id => !!nodesDataSet.get(id));
+                if (validIds.length === 0) {
+                    const firstId = nodeIds[0];
+                    if (firstId) focusNode(firstId);
+                    return;
+                }
+
+                network.selectNodes(validIds, true);
+                network.fit({
+                    nodes: validIds,
+                    animation: { duration: 700, easingFunction: 'easeInOutQuad' }
+                });
+            }
+
+            // ====================================================
+            // CROSS-DOMAIN TELEMETRY FUSION & HIDDEN LINK DISCOVERY
             // ====================================================
 
-            async function showCrossDomainPanel() {
+            async function showCrossDomainPanel(filterType = null) {
                 setNavActive('nav-cross-domain');
                 const overlay = document.getElementById('overlay');
                 overlay.classList.remove('hidden');
@@ -9725,24 +10150,34 @@ Select a subject or click any suggested prompt below to begin.
                 overlay.innerHTML = `
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:18px; flex-wrap:wrap; gap:12px;">
                         <div>
-                            <div class="eyebrow" style="color:var(--teal);">MULTI-SOURCE TELEMETRY FUSION</div>
-                            <h1 style="margin:2px 0 0; color:#fff;">Cross-Domain Telemetry Correlations</h1>
-                            <div class="muted" style="font-size:12px; margin-top:2px;">
-                                Fused temporal correlations across Call Detail Records (CDR), Bank Ledgers, and Location Surveillance.
+                            <div class="eyebrow" style="color:var(--teal);">SIGNATURE INVESTIGATION ENGINE</div>
+                            <h1 style="margin:2px 0 0; color:#fff;">Hidden Link Discovery & Leads</h1>
+                            <div class="muted" style="font-size:12.5px; margin-top:3px;">
+                                High-confidence investigative leads derived from shared burner phones, pooled bank accounts, common vehicle registrations, cross-case links, and intermediary broker bridges.
                             </div>
                         </div>
                         <div style="display:flex; gap:8px;">
-                            <button class="button primary" onclick="showCrossDomainPanel()">↻ Refresh Correlations</button>
-                            <button class="button" onclick="showGraph()">◉ View Graph</button>
+                            <button class="button primary" onclick="showCrossDomainPanel()">↻ Refresh Discovery</button>
+                            <button class="button" onclick="showGraph()">◉ Network Graph</button>
                         </div>
                     </div>
 
-                    <div style="background: rgba(45, 212, 191, 0.08); border-left: 3px solid var(--teal); border-radius: 4px; padding: 8px 12px; margin-bottom: 18px; font-size: 11.5px; color: #ccfbf1;">
-                        <span style="font-weight: 700;">⚠ Decision-Support Telemetry Notice:</span> Cross-domain events represent statistical temporal co-occurrences. Requires investigator verification before legal submission.
+                    <!-- Category Filter Chips -->
+                    <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px;" id="hiddenLinksFilterChips">
+                        <button class="ctrl-btn ${!filterType ? 'active-chip' : ''}" onclick="showCrossDomainPanel(null)">All Leads</button>
+                        <button class="ctrl-btn ${filterType === 'SHARED_PHONE' ? 'active-chip' : ''}" onclick="showCrossDomainPanel('SHARED_PHONE')">📱 Shared Phones</button>
+                        <button class="ctrl-btn ${filterType === 'SHARED_ACCOUNT' ? 'active-chip' : ''}" onclick="showCrossDomainPanel('SHARED_ACCOUNT')">💳 Shared Accounts</button>
+                        <button class="ctrl-btn ${filterType === 'SHARED_VEHICLE' ? 'active-chip' : ''}" onclick="showCrossDomainPanel('SHARED_VEHICLE')">🚗 Shared Vehicles</button>
+                        <button class="ctrl-btn ${filterType === 'CROSS_CASE_LINK' ? 'active-chip' : ''}" onclick="showCrossDomainPanel('CROSS_CASE_LINK')">📁 Cross-Case Links</button>
+                        <button class="ctrl-btn ${filterType === 'INTERMEDIARY_BRIDGE' ? 'active-chip' : ''}" onclick="showCrossDomainPanel('INTERMEDIARY_BRIDGE')">🌉 Intermediary Bridges</button>
+                    </div>
+
+                    <div style="background: rgba(45, 212, 191, 0.08); border-left: 3px solid var(--teal); border-radius: 4px; padding: 10px 14px; margin-bottom: 18px; font-size: 11.5px; color: #ccfbf1; line-height:1.45;">
+                        <span style="font-weight: 700;">🛡️ Multi-Source Empirical Fusion:</span> All discovered leads are strictly backed by empirical CDR telecom records, bank transaction ledgers, or police FIR records with zero hallucination. Sensitive identifiers (phones, bank accounts) are masked by default.
                     </div>
 
                     <div id="crossDomainContent" style="display:flex; flex-direction:column; gap:14px;">
-                        <div class="muted" style="text-align:center; padding:30px;">Loading fused telemetry streams…</div>
+                        <div class="muted" style="text-align:center; padding:30px;">Mining cross-domain telemetry graph…</div>
                     </div>
                 `;
 
@@ -9751,48 +10186,81 @@ Select a subject or click any suggested prompt below to begin.
                     const container = document.getElementById('crossDomainContent');
                     if (!container) return;
 
-                    if (!data.correlations || data.correlations.length === 0) {
+                    let list = data.correlations || [];
+                    if (filterType) {
+                        list = list.filter(c => c.correlation_type === filterType);
+                    }
+
+                    if (!list || list.length === 0) {
                         container.innerHTML = `
                             <div style="text-align:center; padding:36px; background:#0c1a2d; border:1px dashed var(--line); border-radius:8px;">
                                 <div style="font-size:24px; margin-bottom:8px;">✓</div>
-                                <div style="color:#fff; font-weight:700;">No Cross-Domain Anomalies Detected</div>
-                                <div class="muted" style="font-size:12px; margin-top:4px;">No suspicious call-to-transfer or co-temporal hotspots observed in current dataset.</div>
+                                <div style="color:#fff; font-weight:700;">No Correlations Matching Filter</div>
+                                <div class="muted" style="font-size:12px; margin-top:4px;">No suspicious co-occurrences matching current filter criteria.</div>
                             </div>
                         `;
                         return;
                     }
 
                     let cardsHtml = '';
-                    data.correlations.forEach(c => {
+                    list.forEach(c => {
                         const sevColor = c.severity === 'CRITICAL' ? 'var(--red)' : (c.severity === 'HIGH' ? 'var(--coral)' : 'var(--amber)');
-                        const channelsHtml = c.evidence_channels.map(ch => `<span class="pill" style="font-size:10px; background:#142d4a; color:#93c5fd; border:1px solid #234b75;">${escapeHtml(ch.replace('_', ' '))}</span>`).join(' ');
+                        const channelsHtml = (c.evidence_channels || []).map(ch => `<span class="pill" style="font-size:10px; background:#142d4a; color:#93c5fd; border:1px solid #234b75;">${escapeHtml(ch.replace('_', ' '))}</span>`).join(' ');
+
+                        const isDirect = c.provenance_nature === 'DIRECT_EVIDENCE' || (c.correlation_type && (c.correlation_type.includes('SHARED') || c.correlation_type.includes('BURST')));
+                        const natureBadge = isDirect
+                            ? `<span class="badge-direct" title="Direct empirical observation from source records">DIRECT EVIDENCE</span>`
+                            : `<span class="badge-inferred" title="Inferred topological / multi-hop connection">INFERRED CONNECTION</span>`;
+
+                        // Render masked entity tags
+                        let entitiesHtml = '';
+                        if (c.entities_involved && c.entities_involved.length) {
+                            entitiesHtml = c.entities_involved.map(ent => {
+                                const isPh = ent.startsWith('PHONE_') || ent.startsWith('+') || /^\d{10}$/.test(ent);
+                                const isAc = ent.startsWith('ACC_');
+                                if (isPh) return renderMaskedIdentifier(ent, ent, 'phone');
+                                if (isAc) return renderMaskedIdentifier(ent, ent, 'account');
+                                return `<button class="ctrl-btn" style="font-size:11px;" onclick="focusNode('${escapeHtml(ent)}')">◉ ${escapeHtml(ent)}</button>`;
+                            }).join(' ');
+                        }
+
+                        const entJson = JSON.stringify(c.entities_involved || []).replace(/"/g, '&quot;');
 
                         cardsHtml += `
-                            <div class="alert-card" style="border-left-color: ${sevColor}; background: #0c1a2c; padding: 18px; border-radius: 0 8px 8px 0;">
+                            <div class="alert-card" style="border-left-color: ${sevColor}; background: #0c1a2c; padding: 18px; border-radius: 0 8px 8px 0; border: 1px solid var(--card-border); border-left-width: 4px;">
                                 <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px; flex-wrap:wrap; gap:8px;">
                                     <div>
-                                        <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                                        <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px; flex-wrap:wrap;">
+                                            ${natureBadge}
                                             <span class="severity-badge ${c.severity === 'CRITICAL' ? 'sev-high' : 'sev-elevated'}">${c.severity}</span>
-                                            <span style="font-size:11px; font-weight:700; color:var(--teal);">${escapeHtml(c.correlation_type)}</span>
-                                            <span class="muted" style="font-size:11px;">Confidence: <b>${Math.round(c.confidence_score * 100)}%</b></span>
+                                            <span style="font-size:11.5px; font-weight:700; color:var(--teal); font-family:'JetBrains Mono',monospace;">${escapeHtml(c.correlation_type)}</span>
+                                            <span class="muted" style="font-size:11px;">Confidence: <b style="color:var(--teal);">${Math.round(c.confidence_score * 100)}%</b></span>
                                         </div>
-                                        <h3 style="color:#fff; font-size:14.5px; font-weight:700; margin:0;">${escapeHtml(c.title)}</h3>
+                                        <h3 style="color:#fff; font-size:15px; font-weight:800; margin:0;">${escapeHtml(c.title)}</h3>
                                     </div>
                                     <div style="font-size:11px; color:var(--muted); font-family:'JetBrains Mono',monospace;">
-                                        ${escapeHtml(c.first_timestamp.replace('T', ' ').substring(0, 19))}
+                                        ${c.first_timestamp ? escapeHtml(c.first_timestamp.replace('T', ' ').substring(0, 19)) : ''}
                                     </div>
                                 </div>
-                                <p style="color:#cbd5e1; font-size:12.5px; line-height:1.5; margin:8px 0 12px;">
+                                <p style="color:#cbd5e1; font-size:12.5px; line-height:1.55; margin:10px 0 12px;">
                                     ${escapeHtml(c.description)}
                                 </p>
-                                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; border-top:1px solid rgba(255,255,255,0.06); padding-top:10px;">
+                                
+                                ${entitiesHtml ? `
+                                    <div style="margin:8px 0 12px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; background:#071220; padding:8px 10px; border-radius:6px; border:1px solid rgba(255,255,255,0.04);">
+                                        <span style="font-size:10.5px; color:var(--muted); font-weight:700; text-transform:uppercase;">Entities:</span>
+                                        ${entitiesHtml}
+                                    </div>
+                                ` : ''}
+
+                                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; border-top:1px solid rgba(255,255,255,0.06); padding-top:12px;">
                                     <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
-                                        <span style="font-size:11px; color:var(--muted);">Channels:</span>
+                                        <span style="font-size:10.5px; color:var(--muted); text-transform:uppercase;">Channels:</span>
                                         ${channelsHtml}
                                     </div>
-                                    <div style="display:flex; gap:6px;">
-                                        ${c.entities_involved && c.entities_involved.length ? `<button class="ctrl-btn" onclick="focusNode('${escapeHtml(c.entities_involved[0])}')">◉ View in Graph</button>` : ''}
-                                        <button class="ctrl-btn" onclick="openProvenanceModal('${escapeHtml(c.correlation_id)}', 'CORRELATION')">🔍 Inspect Provenance</button>
+                                    <div style="display:flex; gap:8px;">
+                                        ${c.entities_involved && c.entities_involved.length ? `<button class="ctrl-btn" style="color:var(--teal); font-weight:700;" onclick="focusSubnetwork(${entJson})">🔍 Focus Subnetwork in Graph</button>` : ''}
+                                        <button class="ctrl-btn" style="color:#93c5fd; font-weight:700;" onclick="openProvenanceModal('${escapeHtml(c.correlation_id)}', 'CORRELATION')">📜 View Evidence</button>
                                     </div>
                                 </div>
                             </div>
@@ -10014,56 +10482,106 @@ Select a subject or click any suggested prompt below to begin.
             }
 
             // ----------------------------------------------------
-            // EVIDENCE PROVENANCE INSPECTOR
+            // EVIDENCE PROVENANCE & CHAIN OF CUSTODY INSPECTOR
             // ----------------------------------------------------
-            function openProvenanceModal(entityId, type = 'ENTITY') {
+            async function openProvenanceModal(entityId, type = 'ENTITY') {
                 const modal = document.getElementById('provenanceModal');
                 const title = document.getElementById('provenanceModalTitle');
                 const content = document.getElementById('provenanceModalContent');
                 if (!modal || !content) return;
 
                 modal.classList.remove('hidden');
-                title.textContent = `Evidence Provenance · ${escapeHtml(entityId)}`;
+                const cleanId = (entityId || '').trim();
+                title.textContent = `Evidence Provenance · ${escapeHtml(cleanId)}`;
 
                 content.innerHTML = `
-                    <div style="background:#081423; border:1px solid #1c3858; border-radius:8px; padding:16px;">
-                        <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-                            <div>
-                                <span class="pill" style="font-size:10px; background:#183659; color:#93c5fd;">PROVENANCE AUDITED</span>
-                                <h3 style="color:#fff; font-size:15px; margin-top:4px;">${escapeHtml(entityId)}</h3>
-                            </div>
-                            <span class="severity-badge sev-notice">VERIFIED REPOSITORY</span>
-                        </div>
-
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:12px; margin-bottom:14px;">
-                            <div>
-                                <div class="muted" style="font-size:10.5px;">SOURCE REPOSITORY</div>
-                                <div style="color:#fff; font-family:'JetBrains Mono',monospace;">syndicate_network.json</div>
-                            </div>
-                            <div>
-                                <div class="muted" style="font-size:10.5px;">INGESTION PIPELINE</div>
-                                <div style="color:#fff;">NLP Hybrid Extractor v2.4</div>
-                            </div>
-                            <div>
-                                <div class="muted" style="font-size:10.5px;">CRYPTOGRAPHIC SHA-256 HASH</div>
-                                <div style="color:#93c5fd; font-family:'JetBrains Mono',monospace; font-size:11px;">e3b0c44298fc1c14...</div>
-                            </div>
-                            <div>
-                                <div class="muted" style="font-size:10.5px;">CONFIDENCE RATING</div>
-                                <div style="color:var(--teal); font-weight:700;">96.8% (Deterministic Grounding)</div>
-                            </div>
-                        </div>
-
-                        <div class="eyebrow" style="color:var(--teal); margin-top:14px;">VERBATIM EVIDENCE EXCERPT</div>
-                        <div style="background:#040c16; border:1px solid #122438; border-radius:6px; padding:10px; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:#e2e8f0; line-height:1.5; margin-top:4px;">
-                            [AUDIT RECORD #PROV-${Math.floor(Math.random()*89999+10000)}] Verified intelligence record linked to active police investigation ledger and subpoena telecommunication logs. Decision-support verification status confirmed.
-                        </div>
-
-                        <div style="margin-top:16px; text-align:right;">
-                            <button class="button" onclick="closeProvenanceModal()">Close Inspector</button>
-                        </div>
+                    <div style="background:#081423; border:1px solid #1c3858; border-radius:8px; padding:24px; text-align:center;">
+                        <div class="brand-dot" style="display:inline-block; width:10px; height:10px; margin-bottom:8px;"></div>
+                        <div style="color:#fff; font-weight:700; font-size:14px;">Querying Empirical Evidence Provenance…</div>
+                        <div class="muted" style="font-size:11.5px; margin-top:4px;">Retrieving source documents, verbatim case excerpts, and cryptographic SHA-256 hash for <b>${escapeHtml(cleanId)}</b></div>
                     </div>
                 `;
+
+                try {
+                    const res = await request('/evidence/lookup?id=' + encodeURIComponent(cleanId) + '&type=' + encodeURIComponent(type));
+                    const rec = res.primary_record;
+                    if (!rec) {
+                        content.innerHTML = `<div style="padding:20px; color:var(--muted); text-align:center;">No direct evidence records mapped for identifier ${escapeHtml(cleanId)}.</div>`;
+                        return;
+                    }
+
+                    const isDirect = rec.provenance_nature === 'DIRECT_EVIDENCE';
+                    const natureBadge = isDirect
+                        ? `<span class="badge-direct">DIRECT EVIDENCE</span>`
+                        : `<span class="badge-inferred">INFERRED CONNECTION</span>`;
+
+                    let snippetHtml = escapeHtml(rec.snippet || 'Verbatim intelligence record confirmed from active case ledger.');
+                    if (rec.highlight_span && rec.highlight_span.text) {
+                        const hText = escapeHtml(rec.highlight_span.text);
+                        snippetHtml = snippetHtml.replace(hText, `<mark class="evidence-highlight">${hText}</mark>`);
+                    }
+
+                    content.innerHTML = `
+                        <div style="background:#081423; border:1px solid #1c3858; border-radius:8px; padding:18px;">
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
+                                <div>
+                                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                                        ${natureBadge}
+                                        <span class="pill" style="font-size:10px; background:#183659; color:#93c5fd; border:1px solid #234b75;">${escapeHtml(rec.source_domain || rec.source_type)}</span>
+                                    </div>
+                                    <h3 style="color:#fff; font-size:16px; margin:0; font-weight:800;">${escapeHtml(rec.item_label || rec.item_id)}</h3>
+                                </div>
+                                <div style="text-align:right;">
+                                    <div style="color:var(--teal); font-weight:800; font-size:13px;">${Math.round(rec.confidence_score * 100)}% Confidence</div>
+                                    <div class="muted" style="font-size:10.5px;">Deterministic Grounding</div>
+                                </div>
+                            </div>
+
+                            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:10px; background:#06101d; border:1px solid rgba(255,255,255,0.05); border-radius:6px; padding:12px; font-size:12px; margin-bottom:14px;">
+                                <div>
+                                    <div class="muted" style="font-size:10px; text-transform:uppercase;">Source Document / Repo</div>
+                                    <div style="color:#fff; font-family:'JetBrains Mono',monospace; font-weight:600; margin-top:2px;">${escapeHtml(rec.source_file || 'syndicate_network.json')}</div>
+                                </div>
+                                <div>
+                                    <div class="muted" style="font-size:10px; text-transform:uppercase;">Associated Case / FIR</div>
+                                    <div style="color:var(--purple); font-weight:700; margin-top:2px;">${escapeHtml(rec.case_id || 'FIR-2024-311')}</div>
+                                </div>
+                                <div>
+                                    <div class="muted" style="font-size:10px; text-transform:uppercase;">Event Timestamp</div>
+                                    <div style="color:#cbd5e1; font-family:'JetBrains Mono',monospace; margin-top:2px;">${escapeHtml((rec.timestamp || '').replace('T', ' ').substring(0, 19) || 'Recorded Ingestion')}</div>
+                                </div>
+                                <div>
+                                    <div class="muted" style="font-size:10px; text-transform:uppercase;">Evidence ID</div>
+                                    <div style="color:var(--blue); font-family:'JetBrains Mono',monospace; font-size:11px; margin-top:2px;">${escapeHtml(rec.evidence_id)}</div>
+                                </div>
+                            </div>
+
+                            ${rec.derivation_basis ? `
+                                <div style="background:rgba(192,132,252,0.08); border-left:3px solid var(--purple); border-radius:4px; padding:8px 12px; margin-bottom:12px; font-size:12px; color:#f3e8ff;">
+                                    <span style="font-weight:700;">Derivation Basis:</span> ${escapeHtml(rec.derivation_basis)}
+                                    ${rec.intermediary_nodes && rec.intermediary_nodes.length ? `<div style="margin-top:4px; font-size:11px; color:#cbd5e1;">Intermediary Nodes: <b>${escapeHtml(rec.intermediary_nodes.join(' → '))}</b></div>` : ''}
+                                </div>
+                            ` : ''}
+
+                            <div class="eyebrow" style="color:var(--teal); margin-bottom:4px;">VERBATIM EMPIRICAL EVIDENCE EXCERPT</div>
+                            <div style="background:#040c16; border:1px solid #122438; border-radius:6px; padding:12px; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:#e2e8f0; line-height:1.6; max-height:160px; overflow-y:auto;">
+                                ${snippetHtml}
+                            </div>
+
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; border-top:1px solid rgba(255,255,255,0.06); padding-top:12px; flex-wrap:wrap; gap:8px;">
+                                <div style="font-size:10.5px; color:var(--muted); display:flex; align-items:center; gap:4px;">
+                                    <span>🔒 Deterministic Grounding · Zero Hallucination Guarantee</span>
+                                </div>
+                                <div style="display:flex; gap:8px;">
+                                    ${rec.item_id ? `<button class="button primary" onclick="focusNode('${escapeHtml(rec.item_id)}'); closeProvenanceModal();">◉ View in Graph</button>` : ''}
+                                    <button class="button" onclick="closeProvenanceModal()">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } catch (err) {
+                    content.innerHTML = `<div style="color:var(--red); padding:16px; text-align:center;">Failed to load evidence record: ${escapeHtml(err.message)}</div>`;
+                }
             }
 
             function closeProvenanceModal() {

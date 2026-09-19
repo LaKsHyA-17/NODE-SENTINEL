@@ -31,6 +31,7 @@ class AuditAction(str, Enum):
     VIEW_RISK = "VIEW_RISK"
     AI_QUERY = "AI_QUERY"
     GENERATE_REPORT = "GENERATE_REPORT"
+    REVEAL_SENSITIVE_DATA = "REVEAL_SENSITIVE_DATA"
 
     # Data Ingestion
     INGEST_FIR = "INGEST_FIR"

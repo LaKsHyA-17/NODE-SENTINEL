@@ -15,7 +15,7 @@ import io
 import logging
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, File, HTTPException, Query, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from pydantic import BaseModel, Field
 
 from app.core.audit_logger import audit_logger
@@ -27,7 +27,9 @@ from app.core.face_engine import (
 )
 from app.core.face_storage import get_face_storage
 from app.core.universal_search import get_universal_search
+from app.core.auth_service import enforce_permission
 from app.models.audit_models import AuditAction
+from app.models.auth_models import Permission
 from app.models.face_models import FaceMatch, FaceSearchResult, RegisteredIdentity
 from app.models.schemas import (
     UniversalSearchEntityResult,
@@ -101,7 +103,8 @@ def universal_search_post(request: UniversalSearchRequest):
 @router.post("/face/search", response_model=FaceUniversalSearchResponse)
 async def search_by_face(
     file: UploadFile = File(..., description="Query face portrait image (PNG, JPG, JPEG, WEBP)"),
-    threshold: float = Query(0.80, ge=0.0, le=1.0, description="Cosine similarity cutoff threshold")
+    threshold: float = Query(0.80, ge=0.0, le=1.0, description="Cosine similarity cutoff threshold"),
+    _authorized_user=Depends(enforce_permission(Permission.FACE_SEARCH)),
 ):
     """
     Biometric Face Search -> Person ID -> Universal Search Profile -> Knowledge Graph.

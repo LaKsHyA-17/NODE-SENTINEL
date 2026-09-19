@@ -158,20 +158,54 @@ def test_logout_endpoint():
     assert res_after.status_code == 401
 
 
-def test_frontend_auth_elements_present():
-    """Verify that frontend UI contains all required auth, badge, and admin console components."""
-    index_res = client.get("/")
-    assert index_res.status_code == 200
-    html = index_res.text
+def test_reveal_sensitive_rbac_enforcement():
+    """Test /api/auth/reveal-sensitive security and server-side RBAC."""
+    # 1. Unauthenticated request is rejected with 401
+    res_anon = client.post("/api/auth/reveal-sensitive", json={
+        "identifier_type": "phone",
+        "identifier_value": "+91 9811223344"
+    })
+    assert res_anon.status_code == 401
 
-    assert 'id="authUserBadge"' in html
-    assert 'id="loginModal"' in html
-    assert 'id="userCreateModal"' in html
-    assert 'id="nav-admin"' in html
-    assert "quickLogin('admin')" in html
-    assert "quickLogin('investigator')" in html
-    assert "quickLogin('analyst')" in html
-    assert "quickLogin('viewer')" in html
-    assert "loadUsersTable()" in html
-    assert "loadAuditLogsTable()" in html
+    # 2. Viewer role is denied with 403 Forbidden
+    login_viewer = client.post("/api/auth/login", json={"username": "viewer", "password": "Viewer123!"})
+    token_viewer = login_viewer.json()["access_token"]
+    res_viewer = client.post("/api/auth/reveal-sensitive", json={
+        "identifier_type": "phone",
+        "identifier_value": "+91 9811223344"
+    }, headers={"Authorization": f"Bearer {token_viewer}"})
+    assert res_viewer.status_code == 403
 
+    # 3. Analyst role is denied with 403 Forbidden
+    login_analyst = client.post("/api/auth/login", json={"username": "analyst", "password": "Analyst123!"})
+    token_analyst = login_analyst.json()["access_token"]
+    res_analyst = client.post("/api/auth/reveal-sensitive", json={
+        "identifier_type": "account",
+        "identifier_value": "ACC990188231"
+    }, headers={"Authorization": f"Bearer {token_analyst}"})
+    assert res_analyst.status_code == 403
+
+    # 4. Investigator role is authorized with 200 OK
+    login_inv = client.post("/api/auth/login", json={"username": "investigator", "password": "Investigator123!"})
+    token_inv = login_inv.json()["access_token"]
+    res_inv = client.post("/api/auth/reveal-sensitive", json={
+        "identifier_type": "phone",
+        "identifier_value": "+91 9811223344"
+    }, headers={"Authorization": f"Bearer {token_inv}"})
+    assert res_inv.status_code == 200
+    data_inv = res_inv.json()
+    assert data_inv["unmasked_value"] == "+91 9811223344"
+    assert data_inv["authorized_by"] == "investigator"
+    assert data_inv["role"] == "INVESTIGATOR"
+    assert data_inv["audit_logged"] is True
+
+    # 5. Admin role is authorized with 200 OK
+    login_adm = client.post("/api/auth/login", json={"username": "admin", "password": "AdminPassword123!"})
+    token_adm = login_adm.json()["access_token"]
+    res_adm = client.post("/api/auth/reveal-sensitive", json={
+        "identifier_type": "account",
+        "identifier_value": "ACC990188231"
+    }, headers={"Authorization": f"Bearer {token_adm}"})
+    assert res_adm.status_code == 200
+    assert res_adm.json()["unmasked_value"] == "ACC990188231"
+    assert res_adm.json()["role"] == "ADMIN"
