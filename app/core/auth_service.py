@@ -194,6 +194,11 @@ class UserRepository:
         with self._lock:
             self.file_path.parent.mkdir(parents=True, exist_ok=True)
             if not self.file_path.exists() or self.file_path.stat().st_size == 0:
+                if not settings.DEMO_MODE:
+                    raise RuntimeError(
+                        "No user store is configured. Set USERS_FILE to a persistent, access-controlled user store "
+                        "before starting a non-demo deployment."
+                    )
                 logger.info("Initializing users database with seed accounts...")
                 now_str = datetime.now(timezone.utc).isoformat()
                 seed_users = [
@@ -258,7 +263,20 @@ class UserRepository:
             user_list = [u.model_dump() for u in users.values()]
             with open(tmp_path, "w", encoding="utf-8") as f:
                 json.dump(user_list, f, indent=2, default=str)
-            tmp_path.replace(self.file_path)
+            # Resilient atomic replacement for Windows and POSIX
+            for attempt in range(5):
+                try:
+                    tmp_path.replace(self.file_path)
+                    break
+                except (PermissionError, OSError):
+                    if attempt < 4:
+                        import time
+                        time.sleep(0.02 * (attempt + 1))
+                    else:
+                        import shutil
+                        shutil.copyfile(str(tmp_path), str(self.file_path))
+                        tmp_path.unlink(missing_ok=True)
+                        break
         except Exception as e:
             logger.error(f"Failed to save users atomically to {self.file_path}: {e}")
             if tmp_path.exists():
@@ -438,10 +456,6 @@ def get_token_from_request(
     cookie_token = request.cookies.get("nodesentinel_token")
     if cookie_token:
         return cookie_token
-    # Fallback to query param for websockets or report downloads if needed
-    query_token = request.query_params.get("token")
-    if query_token:
-        return query_token
     return None
 
 
@@ -500,6 +514,48 @@ def require_permission(permission: Permission) -> Callable[..., User]:
         request: Request,
         user: User = Depends(get_current_user),
     ) -> User:
+        allowed_perms = ROLE_PERMISSIONS.get(user.role, set())
+        if permission not in allowed_perms:
+            ip = request.client.host if request.client else None
+            audit_logger.log(
+                action=AuditAction.RBAC_ACCESS_DENIED,
+                user_id=user.user_id,
+                username=user.username,
+                role=user.role,
+                resource_type="permission",
+                resource_id=permission.value,
+                ip_address=ip,
+                status="DENIED",
+                details={"required_permission": permission.value, "user_role": user.role.value},
+            )
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Access denied: role '{user.role.value}' lacks permission '{permission.value}'",
+            )
+        return user
+
+    return permission_checker
+
+
+def enforce_permission(permission: Permission) -> Callable[..., Optional[User]]:
+    """Enforce a permission whenever authentication is enabled.
+
+    Local demo mode intentionally remains open for presentations and the legacy
+    offline test fixtures.  Deployments set REQUIRE_AUTH=true and are then
+    protected server-side, rather than relying on the browser to hide controls.
+    """
+    def permission_checker(
+        request: Request,
+        user: Optional[User] = Depends(get_current_user_optional),
+    ) -> Optional[User]:
+        if not settings.REQUIRE_AUTH:
+            return user
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Authentication required",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
         allowed_perms = ROLE_PERMISSIONS.get(user.role, set())
         if permission not in allowed_perms:
             ip = request.client.host if request.client else None

@@ -99,7 +99,19 @@ class AuditLogger:
         try:
             with open(tmp_path, "w", encoding="utf-8") as f:
                 json.dump(entries, f, indent=2, default=str)
-            tmp_path.replace(self.log_path)
+            for attempt in range(5):
+                try:
+                    tmp_path.replace(self.log_path)
+                    break
+                except (PermissionError, OSError):
+                    if attempt < 4:
+                        import time
+                        time.sleep(0.02 * (attempt + 1))
+                    else:
+                        import shutil
+                        shutil.copyfile(str(tmp_path), str(self.log_path))
+                        tmp_path.unlink(missing_ok=True)
+                        break
         except Exception as e:
             logger.error(f"Error writing audit log atomically to {self.log_path}: {e}")
             if tmp_path.exists():

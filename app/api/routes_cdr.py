@@ -74,9 +74,22 @@ async def ingest_cdr(
     elif file is not None:
         filename = file.filename or "uploaded_cdr_file"
         source_name = filename
+        ext = filename.lower().rsplit(".", 1)[-1] if "." in filename else ""
+        if ext and ext not in {"csv", "json", "txt"}:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Unsupported file format '.{ext}' for CDR ingestion. Allowed: CSV, JSON, TXT"
+            )
+
         file_bytes = await file.read()
         if not file_bytes:
             raise HTTPException(status_code=400, detail="Uploaded CDR file is completely empty")
+
+        if len(file_bytes) > 25 * 1024 * 1024:
+            raise HTTPException(
+                status_code=413,
+                detail=f"Uploaded file size ({len(file_bytes) / (1024*1024):.2f} MB) exceeds maximum allowed limit of 25 MB"
+            )
 
         filename_lower = filename.lower()
         if filename_lower.endswith(".json"):

@@ -263,6 +263,10 @@ def ingest_text(request: IngestTextRequest):
     }
 
 
+MAX_FIR_UPLOAD_SIZE = 10 * 1024 * 1024  # 10 MB
+ALLOWED_FIR_EXTENSIONS = {".pdf", ".txt", ".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tiff"}
+
+
 @router.post("/file", response_model=IngestFileResponse)
 async def ingest_file(
     file: UploadFile = File(..., description="FIR report file (TXT, PDF or Image format: png, jpg, jpeg, webp, bmp)"),
@@ -272,9 +276,22 @@ async def ingest_file(
     if not file.filename:
         raise HTTPException(status_code=400, detail="No file provided")
 
+    ext = Path(file.filename).suffix.lower()
+    if ext not in ALLOWED_FIR_EXTENSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported file extension '{ext}'. Allowed formats: {', '.join(sorted(ALLOWED_FIR_EXTENSIONS))}"
+        )
+
     file_bytes = await file.read()
     if not file_bytes:
         raise HTTPException(status_code=400, detail="Uploaded file is empty")
+
+    if len(file_bytes) > MAX_FIR_UPLOAD_SIZE:
+        raise HTTPException(
+            status_code=413,
+            detail=f"Uploaded file size ({len(file_bytes) / (1024*1024):.2f} MB) exceeds maximum allowed limit of 10 MB"
+        )
 
     file_hash = hashlib.sha256(file_bytes).hexdigest()[:16]
 
