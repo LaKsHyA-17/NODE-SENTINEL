@@ -20,6 +20,9 @@ Modern law enforcement and financial intelligence units face critical operationa
 
 ## 3. Key Features
 - **Interactive Multi-Relational Knowledge Graph**: 7 entity types, 6 relationship types, 1-hop/2-hop neighborhood expansion, and shortest-path calculation.
+- **Hidden Link Discovery & Lead Fusion**: Autonomous cross-domain correlation engine discovering shared burner phones, pooled accounts, vehicle intersections, and intermediary bridges with clear `[DIRECT EVIDENCE]` vs `[INFERRED CONNECTION]` nature badges.
+- **Empirical Evidence Provenance**: Verbatim source document citations, character span highlights, and cryptographic SHA-256 custody verification with zero hallucination.
+- **Sensitive Identifier Protection & RBAC**: Default masking of phone numbers and bank accounts with server-side authorized reveal controls restricted to `ADMIN` and `INVESTIGATOR` roles.
 - **Universal Multi-Modal Search**: Instant indexing across suspect names, normalized phone numbers (`+91`), vehicle registration plates, bank accounts, and FIR case IDs.
 - **Biometric Face Recognition**: Cosine similarity face matching against enrolled photo registries with strictly bounded confidence and disclaimer compliance.
 - **CDR Telemetry Analytics**: Sliding-window burst detection (>5 calls/24h), call frequency distributions, and interlocutor ranking.
@@ -53,6 +56,12 @@ Knowledge Graph Engine (NetworkX MultiDiGraph / Dual Neo4j Ready)
 Graph Analytics (Degree & Betweenness Centrality, PageRank, Louvain Modularity)
       │
       ▼
+Cross-Domain Correlation & Hidden Link Discovery Engine
+      │
+      ▼
+Empirical Evidence Provenance & Character-Span Highlighting Layer
+      │
+      ▼
 Domain Telemetry Analysis (CDR 24h Bursts, Financial Flow Sequences, Timelines)
       │
       ▼
@@ -65,7 +74,7 @@ AI Investigation Assistant (Grounded Zero-Hallucination Querying & Action Chips)
 Investigation Report Engine (13-Section Formal Dossiers in PDF/HTML/JSON)
       │
       ▼
-Audit Trail & RBAC (Immutable Action Logs, Credential Redaction, PBKDF2 Auth)
+Security Governance (Server-Side RBAC, Sensitive Identifier Masking, Audit Logs)
 ```
 *(For detailed layer documentation, refer to [ARCHITECTURE.md](file:///c:/Users/laksh_suhwwir/Downloads/criminal_network_engine/criminal_network_engine/ARCHITECTURE.md)).*
 
@@ -77,26 +86,26 @@ Audit Trail & RBAC (Immutable Action Logs, Credential Redaction, PBKDF2 Auth)
 - **Data Validation & Schemas**: Pydantic v2
 - **Vector & Biometrics**: NumPy, Pillow, synthetic unit-normalized embeddings
 - **Report Generation**: PyMuPDF (`fitz`), pure HTML5/CSS printing engine
-- **Security & Authentication**: PBKDF2-HMAC-SHA256 password hashing, cryptographic Bearer tokens
+- **Security & Authentication**: PBKDF2-HMAC-SHA256 password hashing, cryptographic Bearer tokens, server-side RBAC
 - **Frontend Dashboard**: Single-Page Application (HTML5, Vanilla CSS Design System, Vis.js Network Canvas)
 - **Testing Suite**: Pytest, FastAPI TestClient, HTTPX
 
 ---
 
 ## 6. Investigation Workflow
-NODE SENTINEL guides officers through a 7-step investigation lifecycle:
+NODE SENTINEL guides officers through a streamlined 6-step investigation lifecycle:
 1. **Search**: Enter suspect name, phone, plate, or case ID to locate active intelligence.
-2. **Graph**: Inspect the multi-relational network topology and identify key brokers.
-3. **CDR**: Uncover anomalous telephony bursts and high-frequency communication links.
-4. **Finance**: Track rapid money flows, shell account routing, and high-value transactions.
-5. **Timeline**: Review chronological sequence of events across FIRs, calls, and transfers.
-6. **AI Copilot**: Query the knowledge base in natural language for instant evidence synthesis.
-7. **Report**: Export a standardized, court-admissible 13-section dossier in PDF or HTML.
+2. **Network**: Inspect the multi-relational knowledge graph and identify key brokers.
+3. **Hidden Links**: Discover multi-channel hidden links, shared burner phones, and proxy accounts.
+4. **Timeline**: Review chronological sequence of events across FIRs, calls, and transfers.
+5. **Evidence**: Inspect verbatim empirical excerpts with character-span highlight marks.
+6. **Report**: Export a standardized, court-admissible 13-section dossier in PDF, HTML, or JSON.
 
 ---
 
 ## 7. AI/ML Components
 - **Biometric Face Search Engine**: Computes facial feature embeddings and evaluates cosine similarity against enrolled mugshot registries.
+- **Cross-Domain Correlation Engine**: Discovers topological bridges, shared burner phones, and cross-case conduits.
 - **Topological Centrality & Clustering**: Executes Betweenness Centrality and Louvain Community Detection to uncover criminal hierarchies.
 - **Grounded Assistant Engine**: Retrieves graph facts and telemetry records to synthesize zero-hallucination responses with verified source citations.
 - **Anomaly Detection Heuristics**: Sliding-window algorithms for communication burst detection and financial velocity spikes.
@@ -105,7 +114,7 @@ NODE SENTINEL guides officers through a 7-step investigation lifecycle:
 
 ## 8. Knowledge Graph
 - **Graph Representation**: Multi-relational directed graph managing 7 node types (`Person`, `Phone`, `Vehicle`, `Case`, `BankAccount`, `Location`, `Organization`) and 6 edge types (`CALLS`, `TRANSFERRED_MONEY`, `INVOLVED_IN`, `LOCATED_AT`, `OWNS`, `OPERATES`).
-- **Interactive Capabilities**: Dynamic 1-hop and 2-hop neighborhood expansion, shortest path route finding, node filtering, and centrality overlay.
+- **Interactive Capabilities**: Dynamic 1-hop and 2-hop neighborhood expansion, subnetwork focusing, shortest path route finding, node filtering, and centrality overlay.
 
 ---
 
@@ -158,7 +167,8 @@ NODE SENTINEL guides officers through a 7-step investigation lifecycle:
 
 ## 16. Authentication and Audit Trail
 - **Role-Based Access Control**: Strict access boundaries across `ADMIN`, `INVESTIGATOR`, `ANALYST`, and `VIEWER`.
-- **Tamper-Evident Audit Logging**: Logs every search, report generation, and data query. Automatically scrubs passwords, bearer tokens, and credentials.
+- **Sensitive Identifier Protection**: Phone numbers and bank accounts masked by default; unmasking requires server-side permission verification.
+- **Tamper-Evident Audit Logging**: Logs every search, report generation, data query, and sensitive data reveal. Automatically scrubs passwords, bearer tokens, and credentials.
 
 ---
 
@@ -190,19 +200,20 @@ python -m uvicorn app.main:app --reload
 
 | Username | Password | Role | Permissions |
 |---|---|---|---|
-| `admin` | `AdminPassword123!` | `ADMIN` | Full access, user management, audit logs |
-| `investigator1` | `InvestigatorPassword123!` | `INVESTIGATOR` | Search, face search, graph, CDR, finance, reports |
-| `analyst1` | `AnalystPassword123!` | `ANALYST` | Graph analytics, AI assistant queries, timelines |
-| `viewer1` | `ViewerPassword123!` | `VIEWER` | Read-only observation |
+| `admin` | `AdminPassword123!` | `ADMIN` | Full access, user management, audit logs, reveal sensitive data |
+| `investigator` | `Investigator123!` | `INVESTIGATOR` | Search, face search, graph, CDR, finance, reports, reveal sensitive data |
+| `analyst` | `Analyst123!` | `ANALYST` | Graph analytics, AI assistant queries, timelines |
+| `viewer` | `Viewer123!` | `VIEWER` | Read-only observation |
 
 ---
 
 ## 19. Testing
 Run the complete automated test suite:
 ```bash
-python -m pytest -q
+pytest test_audit.py test_auth.py test_cdr_analysis.py test_cross_domain.py test_entity_resolution.py test_evidence_viewer.py test_face_foundation.py test_financial_analysis.py test_fir_ingestion.py test_graph_upgrade.py test_investigation_assistant.py test_ml_anomaly.py test_provenance.py test_rbac.py test_reports.py test_risk_intelligence.py test_security_hardening.py test_smart_dossier.py test_timeline.py test_universal_search.py -v
 ```
-**Test Results**: `139 passed, 0 failed, 3 warnings in ~7s`.
+**Test Results**: `219 passed, 0 failed (100% pass across all 20 modules)`.
+
 
 ---
 

@@ -8,3 +8,6 @@ __pycache__/
 env/
 venv/
 *.log
+*Copy*
+*- Copy*
+*- Copy.*
