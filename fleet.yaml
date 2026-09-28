@@ -1,0 +1,35 @@
+fleet: homelab
+
+services:
+  criminal-network-engine:
+    build: .
+    placement: flexible
+    container_port: 10000
+    resources: { ram: 512Mi, cpu: 0.5 }
+    # No health check: container state decides whether this
+    # is up. Add one once you know a path that returns 2xx —
+    #   health: { path: /healthz }
+    # Note the probe runs from the node, not inside the
+    # container, so the image needs nothing installed for it.
+    env:
+      PROJECT_NAME: ""   # from .env.example
+      APP_ENV: ""   # from .env.example
+      DEMO_MODE: ""   # from .env.example
+      REQUIRE_AUTH: ""   # from .env.example
+      CORS_ORIGINS: ""   # from .env.example
+      KEEP_ALIVE_INTERVAL_SECONDS: ""   # from .env.example
+    secrets: [SECRET_KEY, AUTH_TOKEN_EXPIRE_MINUTES]
+
+  static---copy:
+    build: ./static - Copy
+    placement: flexible
+    container_port: 80
+    resources: { ram: 512Mi, cpu: 0.5 }
+    health: { path: / }
+
+  static---copy---copy:
+    build: ./static - Copy - Copy
+    placement: flexible
+    container_port: 80
+    resources: { ram: 512Mi, cpu: 0.5 }
+    health: { path: / }
