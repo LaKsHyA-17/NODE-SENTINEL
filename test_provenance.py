@@ -26,7 +26,7 @@ def test_entity_provenance_extraction():
 
 def test_triplet_provenance_extraction():
     extractor = NLPExtractor()
-    sample_text = "Tariq Ahmad transferred ₹500000 to ACC987654321."
+    sample_text = "Suspect Tariq Ahmad transferred ₹500000 to ACC987654321."
     meta = {"filename": "bank_subpoena.pdf"}
 
     entities = extractor.extract_entities_with_provenance(sample_text, source_metadata=meta)
