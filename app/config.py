@@ -40,6 +40,10 @@ class Settings:
     TESSERACT_CMD = os.environ.get("TESSERACT_CMD")
     OCR_ENABLED = os.environ.get("OCR_ENABLED", "true").lower() in ("true", "1", "yes")
 
+    # SIH26190 Document Storage Settings
+    DOCUMENT_STORAGE_DIR = os.environ.get("DOCUMENT_STORAGE_DIR", str(Path(BASE_DIR) / "data" / "documents"))
+    MAX_DOCUMENT_SIZE_MB = int(os.environ.get("MAX_DOCUMENT_SIZE_MB", "50"))
+
     def validate_security_configuration(self) -> None:
         """Fail closed when a production deployment is missing core safeguards."""
         if not self.REQUIRE_AUTH:

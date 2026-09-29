@@ -3899,9 +3899,197 @@
                 grid-template-columns: 1fr;
             }
 
-            .bottom-nav-item .bnav-label {
-                font-size: 9px;
-            }
+        /* ==================================================== */
+        /* SIH26190 DOCUMENT HUB & VAULT WORKSPACE STYLES      */
+        /* ==================================================== */
+        .doc-hub-workspace {
+            padding: 24px 32px;
+            max-width: 1300px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .doc-hub-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .doc-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+        }
+
+        .doc-stat-card {
+            background: rgba(12, 24, 43, 0.7);
+            border: 1px solid rgba(38, 64, 94, 0.6);
+            border-radius: 10px;
+            padding: 14px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            backdrop-filter: blur(8px);
+        }
+
+        .doc-stat-card .val {
+            font-size: 22px;
+            font-weight: 800;
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .doc-stat-card .lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--muted);
+        }
+
+        .doc-filter-panel {
+            background: rgba(12, 24, 43, 0.6);
+            border: 1px solid rgba(38, 64, 94, 0.5);
+            border-radius: 10px;
+            padding: 14px 18px;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .doc-filter-panel input,
+        .doc-filter-panel select {
+            background: #081322;
+            border: 1px solid #1e3652;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12.5px;
+            outline: none;
+            width: 100%;
+        }
+
+        .doc-filter-panel input:focus,
+        .doc-filter-panel select:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 8px rgba(45, 212, 191, 0.2);
+        }
+
+        .doc-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+            text-align: left;
+        }
+
+        .doc-table th {
+            background: rgba(8, 19, 34, 0.95);
+            color: var(--muted);
+            font-size: 10.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 12px 14px;
+            border-bottom: 2px solid #1e3652;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+
+        .doc-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid rgba(30, 54, 82, 0.5);
+            color: #d1e2f6;
+            vertical-align: middle;
+        }
+
+        .doc-table tbody tr:hover {
+            background: rgba(26, 51, 84, 0.35);
+        }
+
+        .doc-badge-conf {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .doc-badge-conf.TOP_SECRET {
+            background: rgba(248, 113, 113, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(248, 113, 113, 0.4);
+        }
+
+        .doc-badge-conf.CONFIDENTIAL {
+            background: rgba(251, 191, 36, 0.15);
+            color: #fde68a;
+            border: 1px solid rgba(251, 191, 36, 0.4);
+        }
+
+        .doc-badge-conf.RESTRICTED {
+            background: rgba(56, 189, 248, 0.15);
+            color: #7dd3fc;
+            border: 1px solid rgba(56, 189, 248, 0.4);
+        }
+
+        .doc-badge-conf.PUBLIC {
+            background: rgba(52, 211, 153, 0.15);
+            color: #6ee7b7;
+            border: 1px solid rgba(52, 211, 153, 0.4);
+        }
+
+        .doc-badge-status {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.06);
+            color: #cbd5e1;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .doc-badge-version {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(45, 212, 191, 0.12);
+            color: var(--teal);
+            border: 1px solid rgba(45, 212, 191, 0.3);
+        }
+
+        .doc-action-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #cbd5e1;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .doc-action-btn:hover {
+            background: rgba(45, 212, 191, 0.2);
+            border-color: var(--teal);
+            color: #fff;
         }
     </style>
 </head>
@@ -3994,6 +4182,10 @@
                 title="Universal Multi-Entity Search">
                 <span class="icon">🔎</span> Universal Search
             </button>
+            <button id="nav-documents" class="nav" onclick="showDocumentHub()"
+                title="SIH26190 Secure Legal Document Hub & Integrity Vault">
+                <span class="icon">📁</span> Document Hub
+            </button>
             <button id="nav-cross-domain" class="nav" onclick="showCrossDomainPanel()"
                 title="Hidden Link Discovery & Cross-Domain Correlations">
                 <span class="icon">🔗</span> Hidden Links & Leads
@@ -4062,6 +4254,9 @@
             <div class="nav-label" style="margin-top: 10px">DATA INGESTION</div>
             <button class="nav" onclick="openIngest()" title="Ingest Police First Information Report (FIR)">
                 <span class="icon">＋</span> Ingest FIR Report
+            </button>
+            <button class="nav" onclick="openDocumentUploadModal()" title="Upload & Index Legal Document into Secure Vault">
+                <span class="icon">📄</span> Ingest Document
             </button>
             <button class="nav" onclick="openCdrIngestModal()" title="Ingest Telecom CDR CSV or JSON records">
                 <span class="icon">📥</span> Ingest CDR
@@ -5180,7 +5375,7 @@
             }
 
             function setNavActive(id) {
-                ['nav-graph', 'nav-search', 'nav-centrality', 'nav-communities', 'nav-alerts', 'nav-cdr', 'nav-financial', 'nav-timeline', 'nav-assistant', 'nav-report', 'nav-admin'].forEach(nid => {
+                ['nav-graph', 'nav-search', 'nav-documents', 'nav-centrality', 'nav-communities', 'nav-alerts', 'nav-cdr', 'nav-financial', 'nav-timeline', 'nav-assistant', 'nav-report', 'nav-admin', 'nav-cross-domain', 'nav-evidence'].forEach(nid => {
                     const el = document.getElementById(nid);
                     if (el) el.classList.remove('active');
                 });
@@ -10670,6 +10865,725 @@ Select a subject or click any suggested prompt below to begin.
                         body.classList.add('collapsed');
                         btn.textContent = '+';
                     }
+                }
+            }
+
+            // ====================================================
+            // SIH26190 SECURE DOCUMENT HUB & REPOSITORY MODULE
+            // ====================================================
+
+            let _currentDocQuery = '';
+            let _currentDocPage = 1;
+            let _currentDocFilters = {};
+
+            async function showDocumentHub(query = '', page = 1, filters = {}) {
+                setNavActive('nav-documents');
+                const overlay = document.getElementById('overlay');
+                _currentDocQuery = query;
+                _currentDocPage = page;
+                _currentDocFilters = filters;
+
+                overlay.innerHTML = `
+                    <div class="doc-hub-workspace">
+                        <div class="doc-hub-header">
+                            <div>
+                                <div class="eyebrow" style="color:var(--teal); margin-bottom:4px;">SIH26190 LEGAL EVIDENCE REPOSITORY</div>
+                                <h1 style="color:#fff; margin:0; font-size:22px; display:flex; align-items:center; gap:10px;">
+                                    <span>📁 Secure Document Hub & Vault</span>
+                                    <span class="tag">SHA-256 IMMUTABLE</span>
+                                </h1>
+                            </div>
+                            <div style="display:flex; gap:10px; align-items:center;">
+                                <button class="button" onclick="showGraph()">✕ Close Hub</button>
+                                <button class="button" onclick="showDocumentHub(_currentDocQuery, _currentDocPage, _currentDocFilters)">↻ Refresh</button>
+                                <button class="button primary" onclick="openDocumentUploadModal()">+ Upload Document</button>
+                            </div>
+                        </div>
+
+                        <!-- Stats Row -->
+                        <div class="doc-stats-grid">
+                            <div class="doc-stat-card">
+                                <span class="val" id="docStatTotal">--</span>
+                                <span class="lbl">Authorized Records</span>
+                            </div>
+                            <div class="doc-stat-card">
+                                <span class="val" style="color:var(--teal);">SHA-256</span>
+                                <span class="lbl">Cryptographic Integrity</span>
+                            </div>
+                            <div class="doc-stat-card">
+                                <span class="val" style="color:var(--blue);">IMMUTABLE</span>
+                                <span class="lbl">Monotonic Lineage</span>
+                            </div>
+                            <div class="doc-stat-card">
+                                <span class="val" style="color:var(--purple); font-size:16px;">SECURE VAULT</span>
+                                <span class="lbl">Path Confinement Active</span>
+                            </div>
+                        </div>
+
+                        <!-- Search & Filter Controls -->
+                        <div class="doc-filter-panel">
+                            <div>
+                                <input type="text" id="docSearchInput" placeholder="Search title, description, case, document ID, tags..." value="${escapeHtml(query)}" onkeydown="if(event.key==='Enter') applyDocHubFilters()">
+                            </div>
+                            <div>
+                                <select id="docTypeFilter" onchange="applyDocHubFilters()">
+                                    <option value="">All Document Types</option>
+                                    <option value="FIR">FIR (First Info Report)</option>
+                                    <option value="POLICE_REPORT">Police Report</option>
+                                    <option value="INVESTIGATION_RECORD">Investigation Record</option>
+                                    <option value="WITNESS_STATEMENT">Witness Statement</option>
+                                    <option value="CHARGE_SHEET">Charge Sheet</option>
+                                    <option value="COURT_FILING">Court Filing</option>
+                                    <option value="EVIDENCE">Evidence Document</option>
+                                    <option value="FORENSIC_REPORT">Forensic Report</option>
+                                    <option value="LEGAL_NOTICE">Legal Notice</option>
+                                    <option value="JUDGMENT">Judgment / Order</option>
+                                    <option value="CASE_DIARY">Case Diary</option>
+                                    <option value="SEIZURE_MEMO">Seizure Memo</option>
+                                    <option value="BAIL_APPLICATION">Bail Application</option>
+                                    <option value="REMAND_ORDER">Remand Order</option>
+                                    <option value="OTHER">Other Filing</option>
+                                </select>
+                            </div>
+                            <div>
+                                <select id="docConfFilter" onchange="applyDocHubFilters()">
+                                    <option value="">All Clearances</option>
+                                    <option value="PUBLIC">PUBLIC</option>
+                                    <option value="RESTRICTED">RESTRICTED</option>
+                                    <option value="CONFIDENTIAL">CONFIDENTIAL</option>
+                                    <option value="TOP_SECRET">TOP SECRET</option>
+                                </select>
+                            </div>
+                            <div>
+                                <select id="docStatusFilter" onchange="applyDocHubFilters()">
+                                    <option value="">All Statuses</option>
+                                    <option value="SUBMITTED">SUBMITTED</option>
+                                    <option value="DRAFT">DRAFT</option>
+                                    <option value="SEALED">SEALED</option>
+                                    <option value="SUPERSEDED">SUPERSEDED</option>
+                                    <option value="ARCHIVED">ARCHIVED</option>
+                                </select>
+                            </div>
+                            <div style="display:flex; gap:8px;">
+                                <button class="button primary" onclick="applyDocHubFilters()">Filter</button>
+                                <button class="button" onclick="clearDocHubFilters()">Reset</button>
+                            </div>
+                        </div>
+
+                        <!-- Table Area -->
+                        <div style="background:rgba(12,24,43,0.7); border:1px solid rgba(38,64,94,0.6); border-radius:10px; overflow:hidden;">
+                            <div style="overflow-x:auto;">
+                                <table class="doc-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Document ID</th>
+                                            <th>Title & Classification</th>
+                                            <th>Case ID</th>
+                                            <th>Clearance</th>
+                                            <th>Status</th>
+                                            <th>Ver</th>
+                                            <th>Uploaded By</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="docHubTableBody">
+                                        <tr><td colspan="8" style="text-align:center; padding:30px; color:var(--muted);">Loading document repository...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="docHubPagination" style="display:flex; justify-content:space-between; align-items:center; padding:12px 18px; border-top:1px solid var(--line); font-size:12px; color:var(--muted);">
+                                <span>Showing page <b id="docHubCurPage">1</b></span>
+                                <div style="display:flex; gap:8px;">
+                                    <button class="button" id="docPrevBtn" onclick="navigateDocPage(-1)" disabled>← Previous</button>
+                                    <button class="button" id="docNextBtn" onclick="navigateDocPage(1)" disabled>Next →</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                overlay.classList.remove('hidden');
+
+                // Apply current filter dropdown values if set
+                if (filters.document_type) document.getElementById('docTypeFilter').value = filters.document_type;
+                if (filters.confidentiality) document.getElementById('docConfFilter').value = filters.confidentiality;
+                if (filters.status) document.getElementById('docStatusFilter').value = filters.status;
+
+                await loadDocHubData();
+            }
+
+            function applyDocHubFilters() {
+                const q = document.getElementById('docSearchInput').value.trim();
+                const docType = document.getElementById('docTypeFilter').value;
+                const conf = document.getElementById('docConfFilter').value;
+                const status = document.getElementById('docStatusFilter').value;
+
+                showDocumentHub(q, 1, {
+                    document_type: docType,
+                    confidentiality: conf,
+                    status: status
+                });
+            }
+
+            function clearDocHubFilters() {
+                showDocumentHub('', 1, {});
+            }
+
+            function navigateDocPage(delta) {
+                showDocumentHub(_currentDocQuery, Math.max(1, _currentDocPage + delta), _currentDocFilters);
+            }
+
+            async function loadDocHubData() {
+                const tbody = document.getElementById('docHubTableBody');
+                try {
+                    let path = `/v1/documents/search?page=${_currentDocPage}&page_size=15`;
+                    if (_currentDocQuery) path += `&q=${encodeURIComponent(_currentDocQuery)}`;
+                    if (_currentDocFilters.document_type) path += `&document_type=${encodeURIComponent(_currentDocFilters.document_type)}`;
+                    if (_currentDocFilters.confidentiality) path += `&confidentiality=${encodeURIComponent(_currentDocFilters.confidentiality)}`;
+                    if (_currentDocFilters.status) path += `&status=${encodeURIComponent(_currentDocFilters.status)}`;
+
+                    const data = await request(path);
+
+                    document.getElementById('docStatTotal').textContent = data.total;
+                    document.getElementById('docHubCurPage').textContent = `${data.page} (Total ${data.total} documents)`;
+
+                    document.getElementById('docPrevBtn').disabled = data.page <= 1;
+                    document.getElementById('docNextBtn').disabled = (data.page * data.page_size) >= data.total;
+
+                    if (!data.items || data.items.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px; color:var(--muted);">No matching legal documents found in repository.</td></tr>`;
+                        return;
+                    }
+
+                    tbody.innerHTML = data.items.map(doc => `
+                        <tr>
+                            <td style="font-family:'JetBrains Mono',monospace; font-weight:700; color:#fff; font-size:11.5px;">
+                                ${escapeHtml(doc.document_id)}
+                            </td>
+                            <td>
+                                <div style="font-weight:600; color:#fff;">${escapeHtml(doc.title)}</div>
+                                <small style="color:var(--teal); font-size:10.5px;">${escapeHtml(doc.doc_type)}</small>
+                            </td>
+                            <td style="font-family:'JetBrains Mono',monospace; color:#93b2d5; font-size:11px;">
+                                ${escapeHtml(doc.case_id || 'GENERAL')}
+                            </td>
+                            <td>
+                                <span class="doc-badge-conf ${doc.confidentiality_level}">${doc.confidentiality_level}</span>
+                            </td>
+                            <td>
+                                <span class="doc-badge-status">${doc.status}</span>
+                            </td>
+                            <td>
+                                <span class="doc-badge-version">v${doc.current_version}</span>
+                            </td>
+                            <td style="font-size:11.5px; color:var(--muted);">
+                                ${escapeHtml(doc.uploaded_by)}
+                            </td>
+                            <td>
+                                <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                                    <button class="doc-action-btn" onclick="openDocumentDetailsModal('${doc.document_id}')" title="Inspect Full Document Metadata">👁️ View</button>
+                                    <button class="doc-action-btn" onclick="downloadDocumentFile('${doc.document_id}', null, '${escapeHtml(doc.file_name)}')" title="Download Current File">📥 Get</button>
+                                    <button class="doc-action-btn" onclick="openDocumentVersionsModal('${doc.document_id}')" title="Inspect Immutable Version Lineage">📜 Vers</button>
+                                    <button class="doc-action-btn" onclick="verifyDocumentIntegrityUI('${doc.document_id}')" title="Verify SHA-256 Cryptographic Checksum">🛡️ Verify</button>
+                                    <button class="doc-action-btn" onclick="openCreateVersionModal('${doc.document_id}')" title="Upload New Monotonic Version">＋ v${doc.current_version + 1}</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('');
+                } catch (err) {
+                    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px; color:var(--red);">Error loading documents: ${escapeHtml(err.message)}</td></tr>`;
+                }
+            }
+
+            // ====================================================
+            // DOCUMENT UPLOAD MODAL
+            // ====================================================
+
+            function openDocumentUploadModal(caseIdDefault = '') {
+                const existing = document.getElementById('docUploadModal');
+                if (existing) existing.remove();
+
+                const modal = document.createElement('div');
+                modal.id = 'docUploadModal';
+                modal.className = 'modal-overlay';
+                modal.innerHTML = `
+                    <div class="modal-card" style="max-width:560px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid var(--line); padding-bottom:12px;">
+                            <div>
+                                <div class="eyebrow" style="color:var(--teal);">SIH26190 EVIDENCE VAULT</div>
+                                <h2 style="color:#fff; margin:0; font-size:18px;">Ingest Legal Document</h2>
+                            </div>
+                            <button class="button" onclick="closeDocumentUploadModal()">✕</button>
+                        </div>
+                        <form id="docUploadForm" onsubmit="submitDocumentUpload(event)">
+                            <div style="display:flex; flex-direction:column; gap:12px;">
+                                <div>
+                                    <label class="lbl" style="font-size:11px; font-weight:700; color:var(--muted); display:block; margin-bottom:4px;">Case / FIR Identifier *</label>
+                                    <input type="text" id="upCaseId" required placeholder="e.g. FIR-2026-NDPS-101" value="${escapeHtml(caseIdDefault)}" style="width:100%; background:#081322; border:1px solid #1e3652; color:#fff; padding:8px 12px; border-radius:6px;">
+                                </div>
+                                <div>
+                                    <label class="lbl" style="font-size:11px; font-weight:700; color:var(--muted); display:block; margin-bottom:4px;">Document Official Title *</label>
+                                    <input type="text" id="upTitle" required placeholder="e.g. Seizure Memo & Chemical Analysis Report" style="width:100%; background:#081322; border:1px solid #1e3652; color:#fff; padding:8px 12px; border-radius:6px;">
+                                </div>
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                                    <div>
+                                        <label class="lbl" style="font-size:11px; font-weight:700; color:var(--muted); display:block; margin-bottom:4px;">Document Classification</label>
+                                        <select id="upDocType" style="width:100%; background:#081322; border:1px solid #1e3652; color:#fff; padding:8px 12px; border-radius:6px;">
+                                            <option value="FIR">FIR (First Info Report)</option>
+                                            <option value="POLICE_REPORT">Police Report</option>
+                                            <option value="INVESTIGATION_RECORD">Investigation Record</option>
+                                            <option value="WITNESS_STATEMENT">Witness Statement</option>
+                                            <option value="CHARGE_SHEET">Charge Sheet</option>
+                                            <option value="COURT_FILING">Court Filing</option>
+                                            <option value="EVIDENCE">Evidence Document</option>
+                                            <option value="FORENSIC_REPORT">Forensic Report</option>
+                                            <option value="LEGAL_NOTICE">Legal Notice</option>
+                                            <option value="JUDGMENT">Judgment</option>
+                                            <option value="CASE_DIARY">Case Diary</option>
+                                            <option value="SEIZURE_MEMO">Seizure Memo</option>
+                                            <option value="BAIL_APPLICATION">Bail Application</option>
+                                            <option value="REMAND_ORDER">Remand Order</option>
+                                            <option value="OTHER">Other</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="lbl" style="font-size:11px; font-weight:700; color:var(--muted); display:block; margin-bottom:4px;">Confidentiality Clearance</label>
+                                        <select id="upConfidentiality" style="width:100%; background:#081322; border:1px solid #1e3652; color:#fff; padding:8px 12px; border-radius:6px;">
+                                            <option value="RESTRICTED">RESTRICTED</option>
+                                            <option value="PUBLIC">PUBLIC</option>
+                                            <option value="CONFIDENTIAL">CONFIDENTIAL</option>
+                                            <option value="TOP_SECRET">TOP SECRET</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="lbl" style="font-size:11px; font-weight:700; color:var(--muted); display:block; margin-bottom:4px;">Description / Executive Remarks</label>
+                                    <textarea id="upDescription" rows="2" placeholder="Brief context or summary of document contents..." style="width:100%; background:#081322; border:1px solid #1e3652; color:#fff; padding:8px 12px; border-radius:6px; font-family:inherit;"></textarea>
+                                </div>
+                                <div>
+                                    <label class="lbl" style="font-size:11px; font-weight:700; color:var(--muted); display:block; margin-bottom:4px;">Categorization Tags (comma-separated)</label>
+                                    <input type="text" id="upTags" placeholder="e.g. NDPS, Seizure, Highway, Narcotics" style="width:100%; background:#081322; border:1px solid #1e3652; color:#fff; padding:8px 12px; border-radius:6px;">
+                                </div>
+                                <div>
+                                    <label class="lbl" style="font-size:11px; font-weight:700; color:var(--muted); display:block; margin-bottom:4px;">Document File (.pdf, .png, .jpg, .jpeg, .webp, .txt) *</label>
+                                    <input type="file" id="upFile" required accept=".pdf,.png,.jpg,.jpeg,.webp,.txt" style="width:100%; background:#081322; border:1px dashed #2dd4bf; color:#fff; padding:12px; border-radius:6px;">
+                                </div>
+                            </div>
+                            <div id="upStatusMsg" style="margin-top:12px; font-size:12px;"></div>
+                            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:16px;">
+                                <button type="button" class="button" onclick="closeDocumentUploadModal()">Cancel</button>
+                                <button type="submit" id="upSubmitBtn" class="button primary">Upload & Compute SHA-256</button>
+                            </div>
+                        </form>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+
+            function closeDocumentUploadModal() {
+                const m = document.getElementById('docUploadModal');
+                if (m) m.remove();
+            }
+
+            async function submitDocumentUpload(event) {
+                event.preventDefault();
+                const btn = document.getElementById('upSubmitBtn');
+                const statusDiv = document.getElementById('upStatusMsg');
+                const fileInput = document.getElementById('upFile');
+
+                if (!fileInput.files || fileInput.files.length === 0) {
+                    statusDiv.innerHTML = `<span style="color:var(--red);">Please select a file to upload.</span>`;
+                    return;
+                }
+
+                btn.disabled = true;
+                btn.textContent = 'Hashing & Uploading...';
+                statusDiv.innerHTML = `<span style="color:var(--teal);">Validating magic bytes & saving to secure storage...</span>`;
+
+                try {
+                    const formData = new FormData();
+                    formData.append('case_id', document.getElementById('upCaseId').value.trim());
+                    formData.append('title', document.getElementById('upTitle').value.trim());
+                    formData.append('document_type', document.getElementById('upDocType').value);
+                    formData.append('confidentiality', document.getElementById('upConfidentiality').value);
+                    const desc = document.getElementById('upDescription').value.trim();
+                    if (desc) formData.append('description', desc);
+                    const tags = document.getElementById('upTags').value.trim();
+                    if (tags) formData.append('tags', tags);
+                    formData.append('file', fileInput.files[0]);
+
+                    const token = localStorage.getItem('nodesentinel_token');
+                    const res = await fetch(api + '/v1/documents/upload', {
+                        method: 'POST',
+                        headers: token ? { 'Authorization': 'Bearer ' + token } : {},
+                        body: formData
+                    });
+
+                    if (!res.ok) {
+                        const err = await res.json().catch(() => ({}));
+                        throw new Error(err.detail || 'Upload failed');
+                    }
+
+                    const result = await res.json();
+                    statusDiv.innerHTML = `<span style="color:#34d399; font-weight:700;">✓ Document Registered: ${result.document.document_id} (Version 1)</span>`;
+                    setTimeout(() => {
+                        closeDocumentUploadModal();
+                        showDocumentHub();
+                    }, 1200);
+                } catch (err) {
+                    statusDiv.innerHTML = `<span style="color:var(--red); font-weight:600;">Upload Error: ${escapeHtml(err.message)}</span>`;
+                    btn.disabled = false;
+                    btn.textContent = 'Upload & Compute SHA-256';
+                }
+            }
+
+            // ====================================================
+            // DOCUMENT DETAILS MODAL
+            // ====================================================
+
+            async function openDocumentDetailsModal(docId) {
+                const existing = document.getElementById('docDetailsModal');
+                if (existing) existing.remove();
+
+                const modal = document.createElement('div');
+                modal.id = 'docDetailsModal';
+                modal.className = 'modal-overlay';
+                modal.innerHTML = `
+                    <div class="modal-card" style="max-width:640px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid var(--line); padding-bottom:10px;">
+                            <div>
+                                <div class="eyebrow" style="color:var(--teal);">DOCUMENT METADATA & INTEGRITY</div>
+                                <h2 style="color:#fff; margin:0; font-size:18px;">${escapeHtml(docId)}</h2>
+                            </div>
+                            <button class="button" onclick="closeDocumentDetailsModal()">✕</button>
+                        </div>
+                        <div id="docDetailsContent" style="color:var(--muted); font-size:13px;">Loading metadata...</div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+
+                try {
+                    const doc = await request(`/v1/documents/${encodeURIComponent(docId)}`);
+                    document.getElementById('docDetailsContent').innerHTML = `
+                        <div style="display:flex; flex-direction:column; gap:12px;">
+                            <div style="background:rgba(8,19,34,0.7); border:1px solid #1e3652; border-radius:8px; padding:12px;">
+                                <h3 style="color:#fff; margin-bottom:6px; font-size:15px;">${escapeHtml(doc.title)}</h3>
+                                <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
+                                    <span class="doc-badge-conf ${doc.confidentiality_level}">${doc.confidentiality_level}</span>
+                                    <span class="doc-badge-status">${doc.status}</span>
+                                    <span class="doc-badge-version">Current Version: v${doc.current_version}</span>
+                                </div>
+                                <p style="color:#cbd5e1; font-size:12.5px; line-height:1.5;">${escapeHtml(doc.description || 'No description recorded.')}</p>
+                            </div>
+
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:12px;">
+                                <div><span style="color:var(--muted);">Case / FIR:</span> <b style="color:#fff;">${escapeHtml(doc.case_id || 'N/A')}</b></div>
+                                <div><span style="color:var(--muted);">Classification:</span> <b style="color:var(--teal);">${escapeHtml(doc.doc_type)}</b></div>
+                                <div><span style="color:var(--muted);">File Name:</span> <b style="color:#fff;">${escapeHtml(doc.file_name)}</b></div>
+                                <div><span style="color:var(--muted);">File Size:</span> <b style="color:#fff;">${(doc.file_size / 1024).toFixed(1)} KB</b></div>
+                                <div><span style="color:var(--muted);">MIME Type:</span> <b style="color:#fff;">${escapeHtml(doc.mime_type)}</b></div>
+                                <div><span style="color:var(--muted);">Uploader ID:</span> <b style="color:#fff;">${escapeHtml(doc.uploaded_by)}</b></div>
+                                <div><span style="color:var(--muted);">Registered:</span> <b style="color:#fff;">${escapeHtml(doc.created_at)}</b></div>
+                                <div><span style="color:var(--muted);">Last Updated:</span> <b style="color:#fff;">${escapeHtml(doc.updated_at)}</b></div>
+                            </div>
+
+                            <div style="background:#081322; border:1px solid #1e3652; border-radius:6px; padding:10px;">
+                                <div style="font-size:10px; font-weight:700; color:var(--teal); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:4px;">SHA-256 Cryptographic Checksum</div>
+                                <div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#6ee7b7; word-break:break-all;">${escapeHtml(doc.sha256_hash)}</div>
+                            </div>
+
+                            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;">
+                                <button class="button" onclick="verifyDocumentIntegrityUI('${doc.document_id}')">🛡️ Verify Integrity</button>
+                                <button class="button" onclick="openDocumentVersionsModal('${doc.document_id}')">📜 Versions</button>
+                                <button class="button primary" onclick="downloadDocumentFile('${doc.document_id}', null, '${escapeHtml(doc.file_name)}')">📥 Download Current</button>
+                            </div>
+                        </div>
+                    `;
+                } catch (err) {
+                    document.getElementById('docDetailsContent').innerHTML = `<div style="color:var(--red);">Failed to load metadata: ${escapeHtml(err.message)}</div>`;
+                }
+            }
+
+            function closeDocumentDetailsModal() {
+                const m = document.getElementById('docDetailsModal');
+                if (m) m.remove();
+            }
+
+            // ====================================================
+            // DOCUMENT VERSIONS MODAL
+            // ====================================================
+
+            async function openDocumentVersionsModal(docId) {
+                const existing = document.getElementById('docVersionsModal');
+                if (existing) existing.remove();
+
+                const modal = document.createElement('div');
+                modal.id = 'docVersionsModal';
+                modal.className = 'modal-overlay';
+                modal.innerHTML = `
+                    <div class="modal-card" style="max-width:760px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid var(--line); padding-bottom:10px;">
+                            <div>
+                                <div class="eyebrow" style="color:var(--teal);">IMMUTABLE VERSION LINEAGE</div>
+                                <h2 style="color:#fff; margin:0; font-size:18px;">Versions · ${escapeHtml(docId)}</h2>
+                            </div>
+                            <div style="display:flex; gap:8px;">
+                                <button class="button primary" onclick="openCreateVersionModal('${docId}')">+ New Version</button>
+                                <button class="button" onclick="closeDocumentVersionsModal()">✕</button>
+                            </div>
+                        </div>
+                        <div id="docVersionsContent" style="color:var(--muted); font-size:13px;">Loading version history...</div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+
+                try {
+                    const data = await request(`/v1/documents/${encodeURIComponent(docId)}/versions`);
+                    if (!data.versions || data.versions.length === 0) {
+                        document.getElementById('docVersionsContent').innerHTML = `<div>No version records found.</div>`;
+                        return;
+                    }
+
+                    document.getElementById('docVersionsContent').innerHTML = `
+                        <div style="display:flex; flex-direction:column; gap:10px;">
+                            ${data.versions.map(v => `
+                                <div style="background:rgba(8,19,34,0.7); border:1px solid #1e3652; border-radius:8px; padding:12px; display:flex; justify-content:space-between; align-items:flex-start; gap:14px;">
+                                    <div style="flex:1;">
+                                        <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                                            <span class="doc-badge-version" style="font-size:12px;">v${v.version_number}</span>
+                                            <span style="font-weight:700; color:#fff; font-family:'JetBrains Mono',monospace; font-size:11.5px;">${escapeHtml(v.version_id)}</span>
+                                            <span class="doc-badge-status">${v.status}</span>
+                                        </div>
+                                        <div style="font-size:12px; color:#d1e2f6; margin-bottom:4px;">
+                                            <b>Change Description:</b> ${escapeHtml(v.change_description || 'Initial submission')}
+                                        </div>
+                                        <div style="font-size:11px; color:var(--muted); display:flex; gap:14px; flex-wrap:wrap;">
+                                            <span><b>Author:</b> ${escapeHtml(v.created_by)}</span>
+                                            <span><b>Date:</b> ${escapeHtml(v.created_at)}</span>
+                                            ${v.parent_version_id ? `<span><b>Parent:</b> <code style="color:#93b2d5;">${escapeHtml(v.parent_version_id)}</code></span>` : '<span><b>Parent:</b> Root v1</span>'}
+                                        </div>
+                                        <div style="font-family:'JetBrains Mono',monospace; font-size:10.5px; color:#6ee7b7; margin-top:6px; word-break:break-all;">
+                                            SHA-256: ${escapeHtml(v.sha256_hash)}
+                                        </div>
+                                    </div>
+                                    <div style="display:flex; flex-direction:column; gap:6px; flex-shrink:0;">
+                                        <button class="doc-action-btn" onclick="downloadDocumentFile('${docId}', '${v.version_id}', '${escapeHtml(v.file_name || 'version_' + v.version_number + '.pdf')}')">📥 Download</button>
+                                        <button class="doc-action-btn" onclick="verifyDocumentIntegrityUI('${docId}', '${v.version_id}')">🛡️ Verify</button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } catch (err) {
+                    document.getElementById('docVersionsContent').innerHTML = `<div style="color:var(--red);">Failed to load version history: ${escapeHtml(err.message)}</div>`;
+                }
+            }
+
+            function closeDocumentVersionsModal() {
+                const m = document.getElementById('docVersionsModal');
+                if (m) m.remove();
+            }
+
+            // ====================================================
+            // CREATE NEW VERSION MODAL
+            // ====================================================
+
+            function openCreateVersionModal(docId) {
+                const existing = document.getElementById('docCreateVersionModal');
+                if (existing) existing.remove();
+
+                const modal = document.createElement('div');
+                modal.id = 'docCreateVersionModal';
+                modal.className = 'modal-overlay';
+                modal.innerHTML = `
+                    <div class="modal-card" style="max-width:520px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid var(--line); padding-bottom:10px;">
+                            <div>
+                                <div class="eyebrow" style="color:var(--teal);">IMMUTABLE REVISION SUBMISSION</div>
+                                <h2 style="color:#fff; margin:0; font-size:18px;">Add New Version · ${escapeHtml(docId)}</h2>
+                            </div>
+                            <button class="button" onclick="closeCreateVersionModal()">✕</button>
+                        </div>
+                        <form id="docNewVersionForm" onsubmit="submitCreateVersion(event, '${docId}')">
+                            <div style="display:flex; flex-direction:column; gap:12px;">
+                                <div>
+                                    <label class="lbl" style="font-size:11px; font-weight:700; color:var(--muted); display:block; margin-bottom:4px;">Change Explanation / Amendment Reason *</label>
+                                    <textarea id="vChangeDesc" required rows="3" placeholder="Explain what has been updated or amended in this version..." style="width:100%; background:#081322; border:1px solid #1e3652; color:#fff; padding:8px 12px; border-radius:6px; font-family:inherit;"></textarea>
+                                </div>
+                                <div>
+                                    <label class="lbl" style="font-size:11px; font-weight:700; color:var(--muted); display:block; margin-bottom:4px;">Updated Version File (.pdf, .png, .jpg, .jpeg, .webp, .txt) *</label>
+                                    <input type="file" id="vFile" required accept=".pdf,.png,.jpg,.jpeg,.webp,.txt" style="width:100%; background:#081322; border:1px dashed #2dd4bf; color:#fff; padding:12px; border-radius:6px;">
+                                </div>
+                            </div>
+                            <div id="vStatusMsg" style="margin-top:12px; font-size:12px;"></div>
+                            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:16px;">
+                                <button type="button" class="button" onclick="closeCreateVersionModal()">Cancel</button>
+                                <button type="submit" id="vSubmitBtn" class="button primary">Submit New Version</button>
+                            </div>
+                        </form>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+
+            function closeCreateVersionModal() {
+                const m = document.getElementById('docCreateVersionModal');
+                if (m) m.remove();
+            }
+
+            async function submitCreateVersion(event, docId) {
+                event.preventDefault();
+                const btn = document.getElementById('vSubmitBtn');
+                const statusDiv = document.getElementById('vStatusMsg');
+                const fileInput = document.getElementById('vFile');
+
+                if (!fileInput.files || fileInput.files.length === 0) {
+                    statusDiv.innerHTML = `<span style="color:var(--red);">Please select a version file to upload.</span>`;
+                    return;
+                }
+
+                btn.disabled = true;
+                btn.textContent = 'Uploading Version...';
+                statusDiv.innerHTML = `<span style="color:var(--teal);">Hashing payload & creating immutable version...</span>`;
+
+                try {
+                    const formData = new FormData();
+                    formData.append('change_description', document.getElementById('vChangeDesc').value.trim());
+                    formData.append('file', fileInput.files[0]);
+
+                    const token = localStorage.getItem('nodesentinel_token');
+                    const res = await fetch(api + `/v1/documents/${encodeURIComponent(docId)}/versions`, {
+                        method: 'POST',
+                        headers: token ? { 'Authorization': 'Bearer ' + token } : {},
+                        body: formData
+                    });
+
+                    if (!res.ok) {
+                        const err = await res.json().catch(() => ({}));
+                        throw new Error(err.detail || 'Failed to create version');
+                    }
+
+                    const result = await res.json();
+                    statusDiv.innerHTML = `<span style="color:#34d399; font-weight:700;">✓ Version v${result.version_number} Registered Successfully!</span>`;
+                    setTimeout(() => {
+                        closeCreateVersionModal();
+                        openDocumentVersionsModal(docId);
+                        showDocumentHub();
+                    }, 1000);
+                } catch (err) {
+                    statusDiv.innerHTML = `<span style="color:var(--red); font-weight:600;">Error: ${escapeHtml(err.message)}</span>`;
+                    btn.disabled = false;
+                    btn.textContent = 'Submit New Version';
+                }
+            }
+
+            // ====================================================
+            // INTEGRITY VERIFICATION UI
+            // ====================================================
+
+            async function verifyDocumentIntegrityUI(docId, versionId = null) {
+                const existing = document.getElementById('docIntegrityModal');
+                if (existing) existing.remove();
+
+                const modal = document.createElement('div');
+                modal.id = 'docIntegrityModal';
+                modal.className = 'modal-overlay';
+                modal.innerHTML = `
+                    <div class="modal-card" style="max-width:580px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid var(--line); padding-bottom:10px;">
+                            <div>
+                                <div class="eyebrow" style="color:var(--teal);">CRYPTOGRAPHIC SHA-256 CHECK</div>
+                                <h2 style="color:#fff; margin:0; font-size:18px;">Integrity Verification</h2>
+                            </div>
+                            <button class="button" onclick="this.closest('.modal-overlay').remove()">✕</button>
+                        </div>
+                        <div id="integrityResultBody" style="color:var(--muted); font-size:13px;">Computing SHA-256 digest directly from on-disk binary...</div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+
+                try {
+                    let path = `/v1/documents/${encodeURIComponent(docId)}/verify-integrity`;
+                    if (versionId) path += `?version_id=${encodeURIComponent(versionId)}`;
+
+                    const res = await request(path, { method: 'POST' });
+                    const body = document.getElementById('integrityResultBody');
+
+                    if (res.integrity_valid) {
+                        body.innerHTML = `
+                            <div style="background:rgba(16,185,129,0.1); border:1px solid #10b981; border-radius:8px; padding:16px; margin-bottom:14px;">
+                                <div style="color:#34d399; font-weight:800; font-size:16px; margin-bottom:4px; display:flex; align-items:center; gap:8px;">
+                                    <span>✓</span> Cryptographic Integrity Verified
+                                </div>
+                                <div style="color:#d1fae5; font-size:12.5px;">${escapeHtml(res.status_message)}</div>
+                            </div>
+                            <div style="display:flex; flex-direction:column; gap:8px; font-size:12px;">
+                                <div><span style="color:var(--muted);">Document / Version:</span> <b style="color:#fff;">${escapeHtml(res.document_id)} (v${res.version_number})</b></div>
+                                <div><span style="color:var(--muted);">Verification Timestamp:</span> <b style="color:#fff;">${escapeHtml(res.verified_at)}</b></div>
+                                <div style="background:#081322; border:1px solid #1e3652; border-radius:6px; padding:8px;">
+                                    <div style="font-size:10px; color:var(--muted); font-weight:700; text-transform:uppercase;">Expected Recorded Digest</div>
+                                    <div style="font-family:'JetBrains Mono',monospace; color:#34d399; font-size:11px; word-break:break-all;">${escapeHtml(res.expected_sha256)}</div>
+                                </div>
+                                <div style="background:#081322; border:1px solid #1e3652; border-radius:6px; padding:8px;">
+                                    <div style="font-size:10px; color:var(--muted); font-weight:700; text-transform:uppercase;">Actual Recalculated Physical Digest</div>
+                                    <div style="font-family:'JetBrains Mono',monospace; color:#34d399; font-size:11px; word-break:break-all;">${escapeHtml(res.actual_sha256)}</div>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        body.innerHTML = `
+                            <div style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; border-radius:8px; padding:16px; margin-bottom:14px;">
+                                <div style="color:#f87171; font-weight:800; font-size:16px; margin-bottom:4px; display:flex; align-items:center; gap:8px;">
+                                    <span>⚠ SECURITY ALERT:</span> Integrity Violation Detected
+                                </div>
+                                <div style="color:#fecaca; font-size:12.5px;">${escapeHtml(res.status_message)}</div>
+                            </div>
+                            <div style="display:flex; flex-direction:column; gap:8px; font-size:12px;">
+                                <div><span style="color:var(--muted);">Document / Version:</span> <b style="color:#fff;">${escapeHtml(res.document_id)} (v${res.version_number})</b></div>
+                                <div style="background:#081322; border:1px solid #1e3652; border-radius:6px; padding:8px;">
+                                    <div style="font-size:10px; color:var(--muted); font-weight:700; text-transform:uppercase;">Expected Recorded Hash</div>
+                                    <div style="font-family:'JetBrains Mono',monospace; color:#93b2d5; font-size:11px; word-break:break-all;">${escapeHtml(res.expected_sha256)}</div>
+                                </div>
+                                <div style="background:#081322; border:1px solid #ef4444; border-radius:6px; padding:8px;">
+                                    <div style="font-size:10px; color:#f87171; font-weight:700; text-transform:uppercase;">Actual Tampered File Hash</div>
+                                    <div style="font-family:'JetBrains Mono',monospace; color:#f87171; font-size:11px; word-break:break-all;">${escapeHtml(res.actual_sha256)}</div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } catch (err) {
+                    document.getElementById('integrityResultBody').innerHTML = `<div style="color:var(--red);">Verification failed: ${escapeHtml(err.message)}</div>`;
+                }
+            }
+
+            // ====================================================
+            // FILE DOWNLOAD HELPER
+            // ====================================================
+
+            async function downloadDocumentFile(docId, versionId = null, filename = 'document.pdf') {
+                const token = localStorage.getItem('nodesentinel_token');
+                const path = versionId
+                    ? `/v1/documents/${encodeURIComponent(docId)}/versions/${encodeURIComponent(versionId)}/download`
+                    : `/v1/documents/${encodeURIComponent(docId)}/download`;
+                const url = api + path;
+                try {
+                    const res = await fetch(url, {
+                        headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+                    });
+                    if (!res.ok) {
+                        const err = await res.json().catch(() => ({}));
+                        throw new Error(err.detail || 'Download failed');
+                    }
+                    const blob = await res.blob();
+                    const blobUrl = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = blobUrl;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(blobUrl);
+                } catch (err) {
+                    showError('Download error: ' + err.message);
                 }
             }
 

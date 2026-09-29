@@ -85,6 +85,8 @@ class DocumentVersion(BaseModel):
     created_by: str = Field(..., description="User ID or Badge ID of creator")
     created_at: str = Field(default_factory=get_utc_now_iso, description="ISO UTC creation timestamp")
     change_reason: Optional[str] = Field(None, description="Summary of modifications or legal amendment reason")
+    change_description: Optional[str] = Field(None, description="Detailed description of changes in this version")
+    file_name: Optional[str] = Field(None, description="Original filename of this version")
     status: DocumentStatus = Field(DocumentStatus.SUBMITTED, description="Lifecycle status of this version")
     file_size: Optional[int] = Field(None, ge=0, description="Size in bytes of this version")
     metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional contextual attributes")

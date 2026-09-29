@@ -26,6 +26,7 @@ from app.api.routes_users import router as users_router
 from app.api.routes_audit import router as audit_router
 from app.api.routes_cross_domain import router as cross_domain_router
 from app.api.routes_evidence import router as evidence_router
+from app.api.routes_documents import router as documents_router
 from app.core.audit_logger import audit_logger
 from app.models.audit_models import AuditAction
 from app.core.graph_engine import get_graph_engine
@@ -166,6 +167,8 @@ app.include_router(assistant_router, prefix=settings.API_V1_STR, dependencies=[D
 app.include_router(reports_router, prefix=settings.API_V1_STR, dependencies=[Depends(enforce_permission(Permission.GENERATE_REPORT))])
 app.include_router(cross_domain_router, prefix=settings.API_V1_STR, dependencies=[Depends(enforce_permission(Permission.VIEW_GRAPH))])
 app.include_router(evidence_router, prefix=settings.API_V1_STR, dependencies=[Depends(enforce_permission(Permission.VIEW_GRAPH))])
+app.include_router(documents_router, prefix="/api/v1")
+app.include_router(documents_router, prefix=settings.API_V1_STR)
 
 
 # Static Files Setup
