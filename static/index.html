@@ -3898,6 +3898,7 @@
             .quick-login-grid {
                 grid-template-columns: 1fr;
             }
+        }
 
         /* ==================================================== */
         /* SIH26190 DOCUMENT HUB & VAULT WORKSPACE STYLES      */
@@ -4091,6 +4092,499 @@
             border-color: var(--teal);
             color: #fff;
         }
+
+        /* ==================================================== */
+        /* CONSOLE REFINEMENT — quiet, operational visual system */
+        /* ==================================================== */
+        :root {
+            --bg: #10151d;
+            --surface: #161d27;
+            --surface2: #1d2632;
+            --surface-hover: #253142;
+            --line: #2b3645;
+            --line-light: rgba(255, 255, 255, 0.07);
+            --text: #eef2f7;
+            --text-secondary: #c4ceda;
+            --muted: #8e9aaa;
+            --teal: #78a6ff;
+            --teal-glow: rgba(120, 166, 255, 0.16);
+            --card-bg: #171f2a;
+            --card-border: #2b3747;
+            --card-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+        }
+
+        body {
+            background: var(--bg);
+            font-size: 13px;
+        }
+
+        :focus-visible {
+            outline-color: var(--teal);
+        }
+
+        .app {
+            grid-template-columns: 224px minmax(460px, 1fr) 336px;
+            grid-template-rows: 60px 1fr;
+        }
+
+        .topbar {
+            gap: 14px;
+            padding: 0 20px;
+            background: #151c26;
+            box-shadow: none;
+        }
+
+        .brand {
+            font-size: 15px;
+            letter-spacing: 0.9px;
+        }
+
+        .brand-dot {
+            width: 8px;
+            height: 8px;
+            margin-right: 9px;
+            background: var(--teal);
+            box-shadow: none;
+            animation: none;
+        }
+
+        .tag {
+            padding: 3px 7px;
+            color: var(--muted);
+            background: transparent;
+            border-color: var(--line);
+            border-radius: 4px;
+            font-size: 9px;
+        }
+
+        .workflow-pipeline-bar {
+            gap: 2px;
+            margin: 0;
+            padding: 3px 6px;
+            border-radius: 6px;
+            background: #111821;
+            border-color: var(--line);
+        }
+
+        .wf-step {
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            color: var(--muted);
+        }
+
+        .wf-step:hover,
+        .wf-step.active {
+            color: var(--text);
+            background: rgba(120, 166, 255, 0.13);
+        }
+
+        .wf-step.active {
+            color: var(--teal);
+        }
+
+        .wf-arrow { color: #596575; }
+
+        .status-badge {
+            color: var(--text-secondary);
+            padding: 4px 8px;
+            border-radius: 5px;
+            background: transparent;
+            border-color: var(--line);
+        }
+
+        .status-badge i {
+            width: 6px;
+            height: 6px;
+            box-shadow: none;
+        }
+
+        .sidebar {
+            padding: 14px 10px;
+            gap: 2px;
+            background: #131a23;
+        }
+
+        .nav-label {
+            padding: 12px 9px 5px;
+            color: #718094;
+            font-size: 9px;
+            letter-spacing: 1.1px;
+        }
+
+        .nav {
+            min-height: 34px;
+            padding: 7px 9px;
+            gap: 9px;
+            border-radius: 5px;
+            color: #b5c0ce;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .nav:hover {
+            background: #202a37;
+            color: var(--text);
+            transform: none;
+        }
+
+        .nav.active {
+            background: #263346;
+            color: #f6f8fb;
+            border-left: 2px solid var(--teal);
+            box-shadow: none;
+            padding-left: 7px;
+        }
+
+        .nav span.icon {
+            width: 16px;
+            color: inherit;
+            font-size: 12px;
+            opacity: 0.75;
+            filter: grayscale(1);
+        }
+
+        .sidebar-footer {
+            padding: 12px 8px 3px;
+            color: #778598;
+        }
+
+        .workspace {
+            height: calc(100vh - 60px);
+            background: #111821;
+        }
+
+        .toolbar {
+            height: 50px;
+            min-height: 50px;
+            gap: 8px;
+            padding: 0 16px;
+            background: #161e28;
+        }
+
+        .dataset-select,
+        .search,
+        .doc-filter-panel input,
+        .doc-filter-panel select {
+            min-height: 34px;
+            background: #111821;
+            border-color: var(--line);
+            color: var(--text);
+            border-radius: 5px;
+        }
+
+        .dataset-select:focus,
+        .search:focus,
+        .doc-filter-panel input:focus,
+        .doc-filter-panel select:focus {
+            background: #141d29;
+            border-color: var(--teal);
+            box-shadow: 0 0 0 2px rgba(120, 166, 255, 0.13);
+        }
+
+        .button,
+        .ctrl-btn,
+        .doc-action-btn {
+            min-height: 32px;
+            padding: 6px 10px;
+            border-radius: 5px;
+            border-color: #344153;
+            background: #202a37;
+            color: #d9e1eb;
+            box-shadow: none;
+            font-size: 12px;
+        }
+
+        .button:hover,
+        .ctrl-btn:hover,
+        .doc-action-btn:hover {
+            background: #2a3748;
+            border-color: #596a80;
+            color: #fff;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .button.primary,
+        .find-connection-btn {
+            background: #5d89db;
+            border-color: #6f9bf0;
+            color: #fff;
+            box-shadow: none;
+        }
+
+        .button.primary:hover,
+        .find-connection-btn:hover {
+            background: #7099e9;
+            box-shadow: none;
+            color: #fff;
+        }
+
+        #network {
+            background: #101720;
+        }
+
+        .graph-controls-bar {
+            padding: 7px 14px;
+            gap: 7px;
+            background: #141b25;
+            border-bottom-color: var(--line);
+        }
+
+        .ctrl-label { color: #8492a5; }
+        .ctrl-divider { background: var(--line); }
+
+        .filter-chip,
+        .pill,
+        .doc-badge-conf,
+        .doc-badge-status,
+        .doc-badge-version {
+            border-radius: 4px;
+        }
+
+        .filter-chip {
+            background: #1b2532;
+            border-color: #344153;
+            color: #aebaca;
+        }
+
+        .filter-chip.entity-chip.active-chip,
+        .filter-chip.rel-chip.active-chip,
+        .filter-chip.entity-chip:hover,
+        .filter-chip.rel-chip:hover {
+            background: #27364b;
+            border-color: #678bd1;
+            color: #e8effc;
+        }
+
+        .graph-floating-controls,
+        .legend {
+            background: rgba(20, 27, 37, 0.96);
+            border-color: #344153;
+            border-radius: 6px;
+            box-shadow: var(--card-shadow);
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+
+        .graph-floating-controls { padding: 5px; }
+
+        .graph-float-btn {
+            background: #202a37;
+            border-color: #344153;
+            border-radius: 4px;
+            color: #d9e1eb;
+        }
+
+        .graph-float-btn:hover {
+            background: #2a3748;
+            border-color: #678bd1;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .legend {
+            padding: 10px 12px;
+            max-width: 460px;
+        }
+
+        .legend:hover {
+            background: #18212d;
+            border-color: #46576b;
+        }
+
+        .legend-title,
+        .eyebrow { color: var(--teal); }
+
+        .full-panel {
+            top: 50px;
+            padding: 28px 32px;
+            background: #111821;
+        }
+
+        .full-panel h1 {
+            font-size: 22px;
+            letter-spacing: -0.02em;
+        }
+
+        .rightbar {
+            background: #151c26;
+        }
+
+        .panel {
+            padding: 18px;
+            border-bottom-color: var(--line);
+        }
+
+        .entity-title {
+            font-size: 19px;
+            letter-spacing: -0.015em;
+        }
+
+        .risk-gauge,
+        .metric,
+        .prop-item,
+        .connected-entity-item,
+        .dossier-empty-state {
+            background: #1b2430 !important;
+            border-color: #303d4d !important;
+            border-radius: 6px;
+        }
+
+        .metric { padding: 9px 5px; }
+        .pill { background: #263343; color: #c4d0df; }
+
+        .table-wrap {
+            background: #171f2a;
+            border-color: var(--line);
+            border-radius: 6px;
+        }
+
+        .table th,
+        .doc-table th {
+            background: #1b2531;
+            color: #98a6b8;
+        }
+
+        .table tbody tr:hover,
+        .doc-table tbody tr:hover { background: #202a37; }
+
+        /* Document Hub: repository layout, not a promotional dashboard. */
+        .doc-hub-workspace {
+            max-width: 1440px;
+            padding: 28px 32px 36px;
+            gap: 16px;
+        }
+
+        .doc-hub-header {
+            padding-bottom: 18px;
+            border-bottom-color: var(--line);
+        }
+
+        .doc-hub-title {
+            margin: 3px 0 4px;
+            color: var(--text);
+            font-size: 24px;
+            line-height: 1.2;
+            letter-spacing: -0.025em;
+        }
+
+        .doc-hub-description {
+            max-width: 680px;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .doc-header-actions,
+        .doc-filter-actions,
+        .doc-pagination-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .doc-stats-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .doc-stat-card {
+            min-height: 82px;
+            padding: 13px 15px;
+            gap: 4px;
+            background: #171f2a;
+            border-color: var(--line);
+            border-radius: 6px;
+            backdrop-filter: none;
+        }
+
+        .doc-stat-card .val {
+            color: var(--text) !important;
+            font-size: 19px;
+        }
+
+        .doc-stat-card .lbl {
+            color: var(--muted);
+            letter-spacing: 0.75px;
+        }
+
+        .doc-filter-panel {
+            padding: 12px;
+            grid-template-columns: minmax(230px, 2fr) repeat(3, minmax(135px, 1fr)) auto;
+            gap: 8px;
+            background: #171f2a;
+            border-color: var(--line);
+            border-radius: 6px;
+        }
+
+        .doc-table-shell {
+            overflow: hidden;
+            background: #171f2a;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+        }
+
+        .doc-table th {
+            padding: 11px 14px;
+            border-bottom-color: #344153;
+        }
+
+        .doc-table td {
+            padding: 12px 14px;
+            border-bottom-color: #293544;
+            color: #cbd4df;
+        }
+
+        .doc-badge-conf,
+        .doc-badge-status,
+        .doc-badge-version {
+            padding: 3px 6px;
+            letter-spacing: 0.35px;
+        }
+
+        .doc-action-btn {
+            min-height: 27px;
+            padding: 4px 7px;
+            font-size: 10.5px;
+        }
+
+        .doc-pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 14px;
+            border-top: 1px solid var(--line);
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        @media (max-width: 1100px) {
+            .app { grid-template-columns: 208px minmax(390px, 1fr) 300px; }
+            .workflow-pipeline-bar { max-width: 270px; }
+            .doc-filter-panel { grid-template-columns: minmax(210px, 2fr) repeat(2, minmax(130px, 1fr)); }
+            .doc-filter-actions { grid-column: 1 / -1; }
+        }
+
+        @media (max-width: 768px) {
+            .app { grid-template-columns: none; }
+            .topbar { background: #151c26; }
+            .sidebar { background: #131a23; }
+            .workspace { height: auto; }
+            .full-panel { top: 0; padding: 18px 14px 76px; }
+            .rightbar { background: #151c26; border-radius: 10px 10px 0 0; }
+            .doc-hub-workspace { padding: 18px 14px 84px; gap: 14px; }
+            .doc-hub-header { align-items: flex-start; flex-direction: column; }
+            .doc-header-actions { width: 100%; }
+            .doc-header-actions .button { flex: 1 1 auto; justify-content: center; }
+            .doc-stats-grid { grid-template-columns: 1fr; }
+            .doc-filter-panel { grid-template-columns: 1fr; }
+            .doc-filter-actions { grid-column: auto; }
+            .doc-filter-actions .button { flex: 1; justify-content: center; }
+            .doc-pagination { align-items: flex-start; flex-direction: column; }
+        }
     </style>
 </head>
 
@@ -4123,7 +4617,9 @@
                 <span class="wf-arrow">→</span>
                 <span class="wf-step" id="wf-step-evidence" onclick="openProvenanceModal('PERSON_TARIQ_AHMAD')">5. Evidence</span>
                 <span class="wf-arrow">→</span>
-                <span class="wf-step" id="wf-step-report" onclick="openReportModal()">6. Report</span>
+                <span class="wf-step" id="wf-step-documents" onclick="showDocumentHub()">6. Document Hub</span>
+                <span class="wf-arrow">→</span>
+                <span class="wf-step" id="wf-step-report" onclick="openReportModal()">7. Report</span>
             </div>
 
             <!-- Universal Search Box -->
@@ -4182,10 +4678,6 @@
                 title="Universal Multi-Entity Search">
                 <span class="icon">🔎</span> Universal Search
             </button>
-            <button id="nav-documents" class="nav" onclick="showDocumentHub()"
-                title="SIH26190 Secure Legal Document Hub & Integrity Vault">
-                <span class="icon">📁</span> Document Hub
-            </button>
             <button id="nav-cross-domain" class="nav" onclick="showCrossDomainPanel()"
                 title="Hidden Link Discovery & Cross-Domain Correlations">
                 <span class="icon">🔗</span> Hidden Links & Leads
@@ -4197,6 +4689,10 @@
             <button id="nav-evidence" class="nav" onclick="openProvenanceModal('PERSON_TARIQ_AHMAD')"
                 title="Empirical Evidence Provenance & Custody Viewer">
                 <span class="icon">📜</span> Evidence Provenance
+            </button>
+            <button id="nav-documents" class="nav" onclick="showDocumentHub()"
+                title="SIH26190 Secure Legal Document Hub & Integrity Vault">
+                <span class="icon">📁</span> Document Hub
             </button>
             <button id="nav-report" class="nav" onclick="openReportModal()"
                 title="Generate Official Dossier & Investigation Report">
@@ -5411,13 +5907,16 @@
                 const mapWf = {
                     'nav-search': 'wf-step-search',
                     'nav-graph': 'wf-step-graph',
+                    'nav-cross-domain': 'wf-step-cross-domain',
+                    'nav-timeline': 'wf-step-timeline',
+                    'nav-evidence': 'wf-step-evidence',
+                    'nav-documents': 'wf-step-documents',
+                    'nav-report': 'wf-step-report',
                     'nav-cdr': 'wf-step-cdr',
                     'nav-financial': 'wf-step-fin',
-                    'nav-timeline': 'wf-step-timeline',
-                    'nav-assistant': 'wf-step-ai',
-                    'nav-report': 'wf-step-report'
+                    'nav-assistant': 'wf-step-ai'
                 };
-                ['wf-step-search', 'wf-step-graph', 'wf-step-cdr', 'wf-step-fin', 'wf-step-timeline', 'wf-step-ai', 'wf-step-report'].forEach(sid => {
+                ['wf-step-search', 'wf-step-graph', 'wf-step-cross-domain', 'wf-step-timeline', 'wf-step-evidence', 'wf-step-documents', 'wf-step-report', 'wf-step-cdr', 'wf-step-fin', 'wf-step-ai'].forEach(sid => {
                     const sel = document.getElementById(sid);
                     if (sel) sel.classList.remove('active');
                 });
@@ -10887,16 +11386,14 @@ Select a subject or click any suggested prompt below to begin.
                     <div class="doc-hub-workspace">
                         <div class="doc-hub-header">
                             <div>
-                                <div class="eyebrow" style="color:var(--teal); margin-bottom:4px;">SIH26190 LEGAL EVIDENCE REPOSITORY</div>
-                                <h1 style="color:#fff; margin:0; font-size:22px; display:flex; align-items:center; gap:10px;">
-                                    <span>📁 Secure Document Hub & Vault</span>
-                                    <span class="tag">SHA-256 IMMUTABLE</span>
-                                </h1>
+                                <div class="eyebrow">Case evidence repository</div>
+                                <h1 class="doc-hub-title">Document Hub</h1>
+                                <p class="doc-hub-description">Search, review, verify, and manage case documents with controlled access and recorded version history.</p>
                             </div>
-                            <div style="display:flex; gap:10px; align-items:center;">
-                                <button class="button" onclick="showGraph()">✕ Close Hub</button>
-                                <button class="button" onclick="showDocumentHub(_currentDocQuery, _currentDocPage, _currentDocFilters)">↻ Refresh</button>
-                                <button class="button primary" onclick="openDocumentUploadModal()">+ Upload Document</button>
+                            <div class="doc-header-actions">
+                                <button class="button" onclick="showGraph()">Close</button>
+                                <button class="button" onclick="showDocumentHub(_currentDocQuery, _currentDocPage, _currentDocFilters)">Refresh</button>
+                                <button class="button primary" onclick="openDocumentUploadModal()">Upload document</button>
                             </div>
                         </div>
 
@@ -10904,29 +11401,25 @@ Select a subject or click any suggested prompt below to begin.
                         <div class="doc-stats-grid">
                             <div class="doc-stat-card">
                                 <span class="val" id="docStatTotal">--</span>
-                                <span class="lbl">Authorized Records</span>
+                                <span class="lbl">Documents in scope</span>
                             </div>
                             <div class="doc-stat-card">
-                                <span class="val" style="color:var(--teal);">SHA-256</span>
-                                <span class="lbl">Cryptographic Integrity</span>
+                                <span class="val">SHA-256</span>
+                                <span class="lbl">Integrity verification</span>
                             </div>
                             <div class="doc-stat-card">
-                                <span class="val" style="color:var(--blue);">IMMUTABLE</span>
-                                <span class="lbl">Monotonic Lineage</span>
-                            </div>
-                            <div class="doc-stat-card">
-                                <span class="val" style="color:var(--purple); font-size:16px;">SECURE VAULT</span>
-                                <span class="lbl">Path Confinement Active</span>
+                                <span class="val">Versioned</span>
+                                <span class="lbl">Document history</span>
                             </div>
                         </div>
 
                         <!-- Search & Filter Controls -->
                         <div class="doc-filter-panel">
                             <div>
-                                <input type="text" id="docSearchInput" placeholder="Search title, description, case, document ID, tags..." value="${escapeHtml(query)}" onkeydown="if(event.key==='Enter') applyDocHubFilters()">
+                                <input type="text" id="docSearchInput" aria-label="Search documents" placeholder="Search title, case, document ID, or tag" value="${escapeHtml(query)}" onkeydown="if(event.key==='Enter') applyDocHubFilters()">
                             </div>
                             <div>
-                                <select id="docTypeFilter" onchange="applyDocHubFilters()">
+                                <select id="docTypeFilter" aria-label="Filter by document type" onchange="applyDocHubFilters()">
                                     <option value="">All Document Types</option>
                                     <option value="FIR">FIR (First Info Report)</option>
                                     <option value="POLICE_REPORT">Police Report</option>
@@ -10946,7 +11439,7 @@ Select a subject or click any suggested prompt below to begin.
                                 </select>
                             </div>
                             <div>
-                                <select id="docConfFilter" onchange="applyDocHubFilters()">
+                                <select id="docConfFilter" aria-label="Filter by clearance" onchange="applyDocHubFilters()">
                                     <option value="">All Clearances</option>
                                     <option value="PUBLIC">PUBLIC</option>
                                     <option value="RESTRICTED">RESTRICTED</option>
@@ -10955,7 +11448,7 @@ Select a subject or click any suggested prompt below to begin.
                                 </select>
                             </div>
                             <div>
-                                <select id="docStatusFilter" onchange="applyDocHubFilters()">
+                                <select id="docStatusFilter" aria-label="Filter by status" onchange="applyDocHubFilters()">
                                     <option value="">All Statuses</option>
                                     <option value="SUBMITTED">SUBMITTED</option>
                                     <option value="DRAFT">DRAFT</option>
@@ -10964,14 +11457,14 @@ Select a subject or click any suggested prompt below to begin.
                                     <option value="ARCHIVED">ARCHIVED</option>
                                 </select>
                             </div>
-                            <div style="display:flex; gap:8px;">
+                            <div class="doc-filter-actions">
                                 <button class="button primary" onclick="applyDocHubFilters()">Filter</button>
                                 <button class="button" onclick="clearDocHubFilters()">Reset</button>
                             </div>
                         </div>
 
                         <!-- Table Area -->
-                        <div style="background:rgba(12,24,43,0.7); border:1px solid rgba(38,64,94,0.6); border-radius:10px; overflow:hidden;">
+                        <div class="doc-table-shell">
                             <div style="overflow-x:auto;">
                                 <table class="doc-table">
                                     <thead>
@@ -10991,11 +11484,11 @@ Select a subject or click any suggested prompt below to begin.
                                     </tbody>
                                 </table>
                             </div>
-                            <div id="docHubPagination" style="display:flex; justify-content:space-between; align-items:center; padding:12px 18px; border-top:1px solid var(--line); font-size:12px; color:var(--muted);">
+                            <div id="docHubPagination" class="doc-pagination">
                                 <span>Showing page <b id="docHubCurPage">1</b></span>
-                                <div style="display:flex; gap:8px;">
-                                    <button class="button" id="docPrevBtn" onclick="navigateDocPage(-1)" disabled>← Previous</button>
-                                    <button class="button" id="docNextBtn" onclick="navigateDocPage(1)" disabled>Next →</button>
+                                <div class="doc-pagination-actions">
+                                    <button class="button" id="docPrevBtn" onclick="navigateDocPage(-1)" disabled>Previous</button>
+                                    <button class="button" id="docNextBtn" onclick="navigateDocPage(1)" disabled>Next</button>
                                 </div>
                             </div>
                         </div>
@@ -11080,11 +11573,11 @@ Select a subject or click any suggested prompt below to begin.
                             </td>
                             <td>
                                 <div style="display:flex; gap:5px; flex-wrap:wrap;">
-                                    <button class="doc-action-btn" onclick="openDocumentDetailsModal('${doc.document_id}')" title="Inspect Full Document Metadata">👁️ View</button>
-                                    <button class="doc-action-btn" onclick="downloadDocumentFile('${doc.document_id}', null, '${escapeHtml(doc.file_name)}')" title="Download Current File">📥 Get</button>
-                                    <button class="doc-action-btn" onclick="openDocumentVersionsModal('${doc.document_id}')" title="Inspect Immutable Version Lineage">📜 Vers</button>
-                                    <button class="doc-action-btn" onclick="verifyDocumentIntegrityUI('${doc.document_id}')" title="Verify SHA-256 Cryptographic Checksum">🛡️ Verify</button>
-                                    <button class="doc-action-btn" onclick="openCreateVersionModal('${doc.document_id}')" title="Upload New Monotonic Version">＋ v${doc.current_version + 1}</button>
+                                    <button class="doc-action-btn" onclick="openDocumentDetailsModal('${doc.document_id}')" title="Inspect full document metadata">View</button>
+                                    <button class="doc-action-btn" onclick="downloadDocumentFile('${doc.document_id}', null, '${escapeHtml(doc.file_name)}')" title="Download current file">Download</button>
+                                    <button class="doc-action-btn" onclick="openDocumentVersionsModal('${doc.document_id}')" title="Inspect immutable version lineage">History</button>
+                                    <button class="doc-action-btn" onclick="verifyDocumentIntegrityUI('${doc.document_id}')" title="Verify SHA-256 cryptographic checksum">Verify</button>
+                                    <button class="doc-action-btn" onclick="openCreateVersionModal('${doc.document_id}')" title="Upload a new version">New v${doc.current_version + 1}</button>
                                 </div>
                             </td>
                         </tr>
@@ -11591,6 +12084,21 @@ Select a subject or click any suggested prompt below to begin.
             initAuth();
             initMobileLegend();
             reloadGraph();
+
+            // Hash / Query parameter routing for direct navigation (e.g. #documents or ?tab=documents)
+            function routeToDocumentHub() {
+                const hash = (window.location.hash || '').toLowerCase();
+                const params = new URLSearchParams(window.location.search);
+                if (hash === '#documents' || hash === '#document-hub' || params.get('tab') === 'documents' || params.get('view') === 'documents') {
+                    showDocumentHub();
+                }
+            }
+            window.addEventListener('hashchange', routeToDocumentHub);
+            if (document.readyState === 'loading') {
+                window.addEventListener('DOMContentLoaded', routeToDocumentHub, { once: true });
+            } else {
+                routeToDocumentHub();
+            }
         </script>
 
     <!-- Mobile Bottom Navigation Bar (Visible on <= 768px) -->
